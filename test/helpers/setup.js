@@ -3,7 +3,7 @@ import { Master } from '../../src'
 
 const SLAVE_URL = (() => {
   const alternatives = {
-    'localhost': '127.0.0.1',
+    localhost: '127.0.0.1',
     '127.0.0.1': 'localhost'
   }
   const { hostname, port } = window.location

@@ -45,7 +45,8 @@ class Master extends Node {
   async broadcast (type, args = {}) {
     const slaves = Object.values(this._slaves)
     const responses = await Promise.all(
-      slaves.map(slave => slave.send(type, args)))
+      slaves.map(slave => slave.send(type, args))
+    )
     const result = {}
     for (let i = 0; i < slaves.length; ++i) {
       result[slaves[i].id] = responses[i]

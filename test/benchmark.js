@@ -1,4 +1,5 @@
 import delay from 'delay'
+import numeral from 'numeral'
 import {
   setUpMasterWithSlave,
   setUpMasterWithSlaves,
@@ -8,6 +9,8 @@ import {
 const BENCHMARK_DURATION = 5000
 const SLEEP_TIME = 3000
 const SLAVE_COUNTS = [2, 4, 8, 16, 32, 64, 128, 256]
+
+const format = n => numeral(n).format('0,0.00') + ' sends/sec'
 
 describe('Benchmarks', function () {
   let ctx
@@ -30,7 +33,7 @@ describe('Benchmarks', function () {
       const perSec = await benchmark(async () => {
         await slave.send('noop')
       }, BENCHMARK_DURATION)
-      console.info(`Throughput: ${perSec.toFixed(2)} sends/second`)
+      console.info('Send throughput: ' + format(perSec))
     })
   })
 
@@ -41,12 +44,16 @@ describe('Benchmarks', function () {
       it(`${count} slaves`, async function () {
         ctx = await setUpMasterWithSlaves(count)
         const { master } = ctx
-        console.info(`Benchmarking broadcast with ${count} slaves for ${BENCHMARK_DURATION} ms`)
+        console.info(
+          `Benchmarking broadcast with ${count} slaves for ${BENCHMARK_DURATION} ms`
+        )
         const perSec = await benchmark(async () => {
           await master.broadcast('noop')
         }, BENCHMARK_DURATION)
         const throughput = perSec * count
-        console.info(`Broadcast throughput with ${count} slaves: ${throughput.toFixed(2)} sends/second`)
+        console.info(
+          `Broadcast throughput with ${count} slaves: ` + format(throughput)
+        )
       })
     }
   })

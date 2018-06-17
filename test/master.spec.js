@@ -15,7 +15,8 @@ describe('Master', function () {
       const slaveIds = Object.keys(master.slaves)
       const expected = slaveIds.reduce(
         (acc, id) => Object.assign(acc, { [id]: id }),
-        {})
+        {}
+      )
       const actual = await master.broadcast('id')
       expect(actual).to.deep.equal(expected)
     })

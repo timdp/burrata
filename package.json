@@ -29,7 +29,9 @@
     "test:lint": "yarn run standard",
     "test:e2e": "yarn run clean:coverage && yarn run karma start && yarn run karma start --mode=cover",
     "dev": "yarn run karma start --no-single-run",
-    "benchmark": "yarn run karma start --mode=benchmark"
+    "benchmark": "yarn run karma start --mode=benchmark",
+    "format": "yarn run prettier-standard '{src,test}/**/*.js'",
+    "precommit": "yarn run lint-staged"
   },
   "dependencies": {
     "@babel/runtime": "^7.0.0-beta.51",
@@ -48,6 +50,7 @@
     "delay": "^3.0.0",
     "dirty-chai": "^2.0.1",
     "es6-error": "^4.1.1",
+    "husky": "^0.14.3",
     "istanbul-instrumenter-loader": "^3.0.1",
     "karma": "^2.0.3",
     "karma-chai": "^0.1.0",
@@ -60,7 +63,10 @@
     "karma-sourcemap-loader": "^0.3.7",
     "karma-spec-reporter": "^0.0.32",
     "karma-webpack": "^3.0.0",
+    "lint-staged": "^7.2.0",
     "mocha": "^5.2.0",
+    "numeral": "^2.0.6",
+    "prettier-standard": "^8.0.1",
     "rimraf": "^2.6.2",
     "standard": "^11.0.1",
     "webpack": "^4.12.0",
@@ -78,5 +84,13 @@
       "afterEach",
       "expect"
     ]
+  },
+  "lint-staged": {
+    "linters": {
+      "{src,test}/**/*.js": [
+        "prettier-standard",
+        "git add"
+      ]
+    }
   }
 }

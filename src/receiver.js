@@ -58,16 +58,18 @@ class Receiver {
     try {
       data = JSON.parse(evt.data)
     } catch (err) {}
-    if (data == null || typeof data !== 'object' ||
-        REQUIRED_DATA_PROPERTIES.some(name => (data[name] == null)) ||
-        !this._commands.hasOwnProperty(data.type)) {
+    if (
+      data == null ||
+      typeof data !== 'object' ||
+      REQUIRED_DATA_PROPERTIES.some(name => data[name] == null) ||
+      !this._commands.hasOwnProperty(data.type)
+    ) {
       // TODO Warn
       return
     }
-    this._commands[data.type](data, evt.source)
-      .catch(err => {
-        this._dispatchError(new Error(`Failed to process ${data.type}: ${err}`))
-      })
+    this._commands[data.type](data, evt.source).catch(err => {
+      this._dispatchError(new Error(`Failed to process ${data.type}: ${err}`))
+    })
   }
 
   async _handleConnect ({ id, from }, source) {
