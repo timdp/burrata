@@ -35,6 +35,9 @@ jobs:
           command: yarn test
           environment:
             CIRCLE_TEST_REPORTS: /tmp/test-results
+      - run:
+          name: Report coverage
+          command: yarn run coveralls < coverage/lcov.info
       - store_test_results:
           path: /tmp/test-results
           when: always

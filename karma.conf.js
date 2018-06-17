@@ -1,4 +1,5 @@
 const path = require('path')
+const { benchmark } = require('yargs').boolean('benchmark').parse()
 
 module.exports = config => {
   const { CIRCLE_TEST_REPORTS } = process.env
@@ -20,6 +21,9 @@ module.exports = config => {
       { pattern: 'test/fixtures/**', included: false },
       'test/index.js'
     ],
+    client: {
+      args: [{ benchmark }]
+    },
     preprocessors: {
       '{src,test}/**/*.js': ['webpack', 'sourcemap']
     },

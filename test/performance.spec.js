@@ -1,13 +1,14 @@
 import {
   setUpMasterWithSlave,
   setUpMasterWithSlaves,
-  benchmark
+  benchmark,
+  config
 } from './helpers'
 
 const BENCHMARK_DURATION = 3000
 const NUM_SLAVES = 10
 
-describe('Performance', function () {
+;(config.benchmark ? describe : describe.skip)('Performance', function () {
   this.timeout(BENCHMARK_DURATION + 1000)
 
   describe('send', function () {
