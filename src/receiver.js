@@ -3,6 +3,27 @@ import defer from 'p-defer'
 import serializeError from 'serialize-error'
 import { Node } from './node'
 
+const REQUIRED_DATA_PROPERTIES = ['type', 'from', 'id', 'payload']
+const ERROR_PROPERTIES = ['name', 'stack']
+
+const noop = () => {}
+
+const hydrateError = error => {
+  const err = new Error(error.message)
+  ERROR_PROPERTIES.forEach(name => {
+    const value = error[name]
+    try {
+      Object.defineProperty(err, name, {
+        configurable: true,
+        enumerable: false,
+        value,
+        writable: true
+      })
+    } catch (_) {}
+  })
+  return err
+}
+
 class Receiver {
   constructor (node) {
     this._node = node
@@ -25,7 +46,9 @@ class Receiver {
 
   async _receive (id) {
     if (!this._dfds.hasOwnProperty(id)) {
-      this._dfds[id] = defer()
+      const dfd = defer()
+      dfd.promise.catch(noop)
+      this._dfds[id] = dfd
     }
     return this._dfds[id].promise
   }
@@ -35,30 +58,33 @@ class Receiver {
     try {
       data = JSON.parse(evt.data)
     } catch (err) {}
-    if (data == null ||
-        data.type == null ||
-        !this._commands.hasOwnProperty(data.type) ||
-        data.from == null ||
-        data.id == null ||
-        data.payload == null) {
+    if (data == null || typeof data !== 'object' ||
+        REQUIRED_DATA_PROPERTIES.some(name => (data[name] == null)) ||
+        !this._commands.hasOwnProperty(data.type)) {
+      // TODO Warn
       return
     }
     this._commands[data.type](data, evt.source)
+      .catch(err => {
+        this._dispatchError(new Error(`Failed to process ${data.type}: ${err}`))
+      })
   }
 
   async _handleConnect ({ id, from }, source) {
-    const slave = this._node._accept(from, source)
-    slave._send('response', id)
-    const evt = new CustomEvent('connect', {
-      detail: {
-        slave
-      }
-    })
-    this._node.dispatchEvent(evt)
+    let slave
+    try {
+      slave = this._node._accept(from, source)
+    } catch (err) {
+      this._dispatchError(new Error(`Failed to accept connection: ${err}`))
+      return
+    }
+    this._dispatchEvent('connect', { slave })
+    await slave._send('response', id)
   }
 
   async _handleRequest ({ id, from, payload: { type, args } }) {
     if (!Node.instances.hasOwnProperty(from)) {
+      // TODO Warn
       return
     }
     const node = Node.instances[from]
@@ -72,33 +98,30 @@ class Receiver {
         error = serializeError(err)
       } catch (_) {}
     } finally {
-      node._send('response', id, { error, result })
+      await node._send('response', id, { error, result })
     }
   }
 
   async _handleResponse ({ id, from, payload: { error, result } }) {
     if (!this._dfds.hasOwnProperty(id)) {
+      // TODO Warn
       return
     }
     const { resolve, reject } = this._dfds[id]
     delete this._dfds[id]
     if (error != null) {
-      const err = new Error(error.message)
-      ;['name', 'stack'].forEach(name => {
-        const value = error[name]
-        try {
-          Object.defineProperty(err, name, {
-            configurable: true,
-            enumerable: false,
-            value,
-            writable: true
-          })
-        } catch (_) {}
-      })
-      reject(err)
+      reject(hydrateError(error))
     } else {
       resolve(result)
     }
+  }
+
+  _dispatchError (error) {
+    this._dispatchEvent('error', { error })
+  }
+
+  _dispatchEvent (type, detail) {
+    this._node.dispatchEvent(new CustomEvent(type, { detail }))
   }
 }
 

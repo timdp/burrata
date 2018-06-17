@@ -4,11 +4,10 @@ module.exports = config => {
   config.set({
     frameworks: [
       'mocha',
-      'mocha-iframes',
       'dirty-chai'
     ],
     browsers: [
-      'ChromeHeadless'
+      config.singleRun ? 'ChromeHeadless' : 'Chrome'
     ],
     reporters: [
       ...(ci ? ['junit', 'spec'] : ['progress']),
@@ -21,16 +20,31 @@ module.exports = config => {
       'test/**/*.spec.js'
     ],
     preprocessors: {
-      '{src,test}/**/*.js': ['webpack']
+      '{src,test}/**/*.js': ['webpack', 'sourcemap']
     },
     webpack: {
       mode: 'development',
+      devtool: 'inline-source-map',
       module: {
         rules: [
           {
             test: /\.js$/,
             exclude: /\bnode_modules\b/,
-            use: { loader: 'babel-loader' }
+            use: {
+              loader: 'babel-loader',
+              options: {
+                presets: [
+                  ['@babel/preset-env', {
+                    targets: {
+                      chrome: 64
+                    }
+                  }]
+                ],
+                plugins: [
+                  '@babel/plugin-transform-runtime'
+                ]
+              }
+            }
           }
         ]
       }

@@ -3,8 +3,8 @@ import { Receiver } from './receiver'
 import { Sender } from './sender'
 
 class SlaveStub extends Node {
-  constructor (master, id, target) {
-    super(id, target, '*')
+  constructor (master, id, target, origin) {
+    super(id, target, origin)
     this._master = master
     this._init(new Sender(this), master.receiver)
   }
@@ -19,8 +19,8 @@ class SlaveStub extends Node {
 }
 
 class Master extends Node {
-  constructor (target = window) {
-    super('', target, '*')
+  constructor (target = window, origin = '*') {
+    super('', target, origin)
     this._slaves = {}
     this._init(null, new Receiver(this))
   }
@@ -54,7 +54,7 @@ class Master extends Node {
   }
 
   _accept (id, win) {
-    const node = new SlaveStub(this, id, win)
+    const node = new SlaveStub(this, id, win, '*')
     this._slaves[id] = node
     return node
   }

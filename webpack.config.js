@@ -28,7 +28,17 @@ module.exports = CONFIGS.map(({ mode, filename }) => ({
       {
         test: /\.js$/,
         exclude: /\bnode_modules\b/,
-        use: { loader: 'babel-loader' }
+        use: {
+          loader: 'babel-loader',
+          options: {
+            presets: [
+              '@babel/preset-env'
+            ],
+            plugins: [
+              '@babel/plugin-transform-runtime'
+            ]
+          }
+        }
       }
     ]
   }

@@ -19,11 +19,20 @@
     return `${hms}.${ms}`
   }
 
+  const addLogEntry = (logs, message, isError = false) => {
+    const time = formatTime(new Date())
+    const div = document.createElement('div')
+    div.className = isError ? 'error' : 'info'
+    div.innerText = `[${time}] ${message}`
+    logs.appendChild(div)
+  }
+
   window.setUpLog = node => {
     const logs = document.createElement('fieldset')
     const legend = document.createElement('legend')
     legend.innerText = node.toString()
     logs.appendChild(legend)
+
     new Promise(resolve => {
       if (document.body != null) {
         resolve()
@@ -35,11 +44,14 @@
     })
 
     node.addEventListener('log', ({ detail: { message } }) => {
-      const time = formatTime(new Date())
-      console.log(`${node}: ${message}`)
-      const div = document.createElement('div')
-      div.innerText = `[${time}] ${message}`
-      logs.appendChild(div)
+      console.info(`${node}: ${message}`)
+      addLogEntry(logs, message)
+    })
+
+    node.addEventListener('error', ({ detail: { error } }) => {
+      const message = '' + error
+      console.error(`${node}: ${message}`)
+      addLogEntry(logs, message, true)
     })
   }
 })()

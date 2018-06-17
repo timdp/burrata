@@ -1,7 +1,17 @@
 import defer from 'p-defer'
 import { Master } from '../../src'
 
-const SLAVE_URL = '/base/test/fixtures/slave.html'
+const SLAVE_URL = (() => {
+  const alternatives = {
+    'localhost': '127.0.0.1',
+    '127.0.0.1': 'localhost'
+  }
+  const { hostname, port } = window.location
+  const base = '//' + (alternatives[hostname] || hostname) + ':' + port
+  return base + '/base/test/fixtures/slave.html'
+})()
+
+let masterCount = 0
 
 export const setUpSlave = id => {
   const config = { id }
@@ -13,6 +23,7 @@ export const setUpSlave = id => {
 }
 
 export const setUpMasterWithSlaves = async numSlaves => {
+  const ns = ++masterCount
   const master = new Master()
   if (numSlaves <= 0) {
     master.init()
@@ -29,7 +40,7 @@ export const setUpMasterWithSlaves = async numSlaves => {
   }
   master.addEventListener('connect', onConnect)
   for (let id = 1; id <= numSlaves; ++id) {
-    setUpSlave('' + id)
+    setUpSlave(`${ns}:${id}`)
   }
   master.init()
   await dfd.promise
@@ -37,3 +48,18 @@ export const setUpMasterWithSlaves = async numSlaves => {
 }
 
 export const setUpMasterWithSlave = () => setUpMasterWithSlaves(1)
+
+export const benchmark = async (doOnce, duration) => {
+  let count = 0
+  let endTime
+  const startTime = performance.now()
+  const maxTime = startTime + duration
+  do {
+    await doOnce()
+    endTime = performance.now()
+    ++count
+  } while (endTime < maxTime)
+  const elapsedMs = endTime - startTime
+  const perSec = 1000 * count / elapsedMs
+  return perSec
+}

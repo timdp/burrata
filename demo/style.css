@@ -2,12 +2,14 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: small;
 }
 
 html, body {
   height: 100%;
+  background: white;
+  color: black;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: small;
 }
 
 body {
@@ -39,4 +41,8 @@ fieldset {
 
 .log div {
   margin-bottom: 0.5em;
+}
+
+.error {
+  color: red;
 }

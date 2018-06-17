@@ -7,14 +7,18 @@ describe('Master', function () {
     [master] = await setUpMasterWithSlaves(3)
   })
 
+  afterEach(function () {
+    master.dispose()
+  })
+
   describe('broadcast', function () {
     it('broadcasts to all slaves', async () => {
-      const responses = await master.broadcast('id')
-      expect(responses).to.deep.equal({
-        '1': '1',
-        '2': '2',
-        '3': '3'
-      })
+      const slaveIds = Object.keys(master.slaves)
+      const expected = slaveIds.reduce(
+        (acc, id) => Object.assign(acc, { [id]: id }),
+        {})
+      const actual = await master.broadcast('id')
+      expect(actual).to.deep.equal(expected)
     })
   })
 })

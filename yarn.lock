@@ -3682,17 +3682,17 @@ karma-junit-reporter@^1.2.0:
     path-is-absolute "^1.0.0"
     xmlbuilder "8.2.2"
 
-karma-mocha-iframes@^0.5.2:
-  version "0.5.2"
-  resolved "https://registry.yarnpkg.com/karma-mocha-iframes/-/karma-mocha-iframes-0.5.2.tgz#2ae6f97a0ab1f11581fda9a3786c8194a397fca2"
-  dependencies:
-    slash "^1.0.0"
-
 karma-mocha@^1.3.0:
   version "1.3.0"
   resolved "https://registry.yarnpkg.com/karma-mocha/-/karma-mocha-1.3.0.tgz#eeaac7ffc0e201eb63c467440d2b69c7cf3778bf"
   dependencies:
     minimist "1.2.0"
+
+karma-sourcemap-loader@^0.3.7:
+  version "0.3.7"
+  resolved "https://registry.yarnpkg.com/karma-sourcemap-loader/-/karma-sourcemap-loader-0.3.7.tgz#91322c77f8f13d46fed062b042e1009d4c4505d8"
+  dependencies:
+    graceful-fs "^4.1.2"
 
 karma-spec-reporter@^0.0.32:
   version "0.0.32"
@@ -5462,10 +5462,6 @@ slack-node@~0.2.0:
   resolved "https://registry.yarnpkg.com/slack-node/-/slack-node-0.2.0.tgz#de4b8dddaa8b793f61dbd2938104fdabf37dfa30"
   dependencies:
     requestretry "^1.2.2"
-
-slash@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/slash/-/slash-1.0.0.tgz#c41f2f6c39fc16d1cd17ad4b5d896114ae470d55"
 
 slice-ansi@1.0.0:
   version "1.0.0"

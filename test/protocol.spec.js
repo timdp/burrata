@@ -1,10 +1,14 @@
 import { setUpMasterWithSlave } from './lib/helpers'
 
 describe('Protocol', function () {
-  let slave
+  let master, slave
 
   beforeEach(async function () {
-    [, slave] = await setUpMasterWithSlave()
+    [master, slave] = await setUpMasterWithSlave()
+  })
+
+  afterEach(function () {
+    master.dispose()
   })
 
   it('handles nonexistent commands', async function () {

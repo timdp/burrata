@@ -8,6 +8,10 @@ describe('Commands', function () {
     [master, slave] = await setUpMasterWithSlave()
   })
 
+  afterEach(function () {
+    master.dispose()
+  })
+
   // Command without args
   describe('noop', function () {
     it('returns null', async function () {
