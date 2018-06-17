@@ -25,10 +25,6 @@ export const setUpSlave = id => {
 export const setUpMasterWithSlaves = async numSlaves => {
   const ns = ++masterCount
   const master = new Master()
-  if (numSlaves <= 0) {
-    master.init()
-    return [master]
-  }
   const dfd = defer()
   const slaves = []
   const onConnect = ({ detail: { slave } }) => {
@@ -39,12 +35,24 @@ export const setUpMasterWithSlaves = async numSlaves => {
     }
   }
   master.addEventListener('connect', onConnect)
+  const iframes = []
   for (let id = 1; id <= numSlaves; ++id) {
-    setUpSlave(`${ns}:${id}`)
+    const iframe = setUpSlave(`${ns}:${id}`)
+    iframes.push(iframe)
   }
   master.init()
   await dfd.promise
-  return [master, ...slaves]
+  return {
+    master,
+    slave: slaves[0],
+    slaves,
+    dispose: () => {
+      master.dispose()
+      iframes.filter(iframe => iframe.parentNode).forEach(iframe => {
+        iframe.parentNode.removeChild(iframe)
+      })
+    }
+  }
 }
 
 export const setUpMasterWithSlave = () => setUpMasterWithSlaves(1)

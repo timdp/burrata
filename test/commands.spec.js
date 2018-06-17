@@ -2,19 +2,18 @@ import defer from 'p-defer'
 import { setUpMasterWithSlave } from './helpers'
 
 describe('Commands', function () {
-  let master, slave
+  let ctx
 
   beforeEach(async function () {
-    [master, slave] = await setUpMasterWithSlave()
+    ctx = await setUpMasterWithSlave()
   })
 
-  afterEach(function () {
-    master.dispose()
-  })
+  afterEach(() => ctx.dispose())
 
   // Command without args
   describe('noop', function () {
     it('returns null', async function () {
+      const { slave } = ctx
       const res = await slave.send('noop')
       expect(res).to.equal(null)
     })
@@ -23,6 +22,7 @@ describe('Commands', function () {
   // Command with scalar args and scalar return value
   describe('sum', function () {
     it('returns the sum of a and b', async function () {
+      const { slave } = ctx
       const a = 14.7
       const b = 9.5
       const expected = a + b
@@ -34,6 +34,7 @@ describe('Commands', function () {
   // Command with array args and array return value
   describe('uppercase', function () {
     it('returns uppercased strings', async function () {
+      const { slave } = ctx
       const strings = ['foo', 'bar']
       const actual = await slave.send('uppercase', { strings })
       const expected = ['FOO', 'BAR']
@@ -44,6 +45,7 @@ describe('Commands', function () {
   // Command that triggers master command (ping-pong style)
   describe('trigger', function () {
     it('triggers a master command', async function () {
+      const { master, slave } = ctx
       const dfd = defer()
       const type = 'dummy'
       const args = { foo: 'bar' }
@@ -59,6 +61,7 @@ describe('Commands', function () {
   // Command that throws
   describe('fail', function () {
     it('rejects with CustomError', async function () {
+      const { slave } = ctx
       let error = null
       try {
         await slave.send('fail')

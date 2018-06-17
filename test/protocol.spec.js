@@ -1,17 +1,16 @@
 import { setUpMasterWithSlave } from './helpers'
 
 describe('Protocol', function () {
-  let master, slave
+  let ctx
 
   beforeEach(async function () {
-    [master, slave] = await setUpMasterWithSlave()
+    ctx = await setUpMasterWithSlave()
   })
 
-  afterEach(function () {
-    master.dispose()
-  })
+  afterEach(() => ctx.dispose())
 
   it('handles nonexistent commands', async function () {
+    const { slave } = ctx
     let error = null
     try {
       await slave.send('doesNotExist')

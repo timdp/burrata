@@ -1,18 +1,17 @@
 import { setUpMasterWithSlaves } from './helpers'
 
 describe('Master', function () {
-  let master
+  let ctx
 
   beforeEach(async function () {
-    [master] = await setUpMasterWithSlaves(3)
+    ctx = await setUpMasterWithSlaves(3)
   })
 
-  afterEach(function () {
-    master.dispose()
-  })
+  afterEach(() => ctx.dispose())
 
   describe('broadcast', function () {
     it('broadcasts to all slaves', async () => {
+      const { master } = ctx
       const slaveIds = Object.keys(master.slaves)
       const expected = slaveIds.reduce(
         (acc, id) => Object.assign(acc, { [id]: id }),

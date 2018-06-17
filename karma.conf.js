@@ -10,6 +10,7 @@ module.exports = config => {
   const ci = (CIRCLE_TEST_REPORTS != null)
   config.set({
     singleRun: true,
+    browserNoActivityTimeout: (mode === 'benchmark') ? 30000 : 10000,
     frameworks: [
       'mocha',
       'dirty-chai'
