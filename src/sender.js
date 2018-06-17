@@ -1,9 +1,6 @@
-let count = 0
-
 class Sender {
   constructor (node) {
     this._node = node
-    this._id = count++
     this._msgId = 0
   }
 
@@ -17,7 +14,7 @@ class Sender {
 
   async _sendAndReceive (command, payload = {}) {
     const msgId = this._msgId++
-    const id = `${this._id}:${msgId}`
+    const id = `${this._node.id}:${msgId}`
     const receiving = this._node._receive(id)
     this._send(command, id, payload)
     return receiving
