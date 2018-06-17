@@ -36,19 +36,7 @@ module.exports = config => {
             test: /\.js$/,
             exclude: path.resolve(__dirname, 'node_modules'),
             use: {
-              loader: 'babel-loader',
-              options: {
-                presets: [
-                  ['@babel/preset-env', {
-                    targets: {
-                      chrome: 64
-                    }
-                  }]
-                ],
-                plugins: [
-                  '@babel/plugin-transform-runtime'
-                ]
-              }
+              loader: 'babel-loader'
             }
           },
           {
