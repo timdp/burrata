@@ -26,8 +26,7 @@
     "build:minify": "yarn run uglifyjs -c -m -o dist/burrata.min.js dist/burrata.js",
     "test": "yarn run test:lint && yarn run test:e2e",
     "test:lint": "yarn run standard",
-    "test:e2e": "yarn run karma start --single-run",
-    "coverage": "yarn run coveralls"
+    "test:e2e": "yarn run karma start --single-run"
   },
   "dependencies": {
     "@babel/runtime": "^7.0.0-beta.51",

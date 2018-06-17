@@ -35,9 +35,6 @@ jobs:
           command: yarn test
           environment:
             CIRCLE_TEST_REPORTS: /tmp/test-results
-      - run:
-          name: Report coverage
-          command: yarn run coverage
       - store_test_results:
           path: /tmp/test-results
           when: always
