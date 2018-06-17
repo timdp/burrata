@@ -14,8 +14,7 @@ module.exports = config => {
     reporters: [
       ...(ci ? ['junit'] : []),
       'spec',
-      'coverage-istanbul',
-      ...(ci ? ['coveralls'] : [])
+      'coverage-istanbul'
     ],
     files: [
       { pattern: 'test/fixtures/**', included: false },
