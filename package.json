@@ -19,7 +19,7 @@
     "dist/"
   ],
   "scripts": {
-    "prepublishOnly": "yarn run build",
+    "prepublishOnly": "yarn test && yarn run build",
     "clean": "yarn run clean:dist && yarn run clean:coverage",
     "clean:dist": "yarn run rimraf dist",
     "clean:coverage": "yarn run rimraf dist",
