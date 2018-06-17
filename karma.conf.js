@@ -1,9 +1,14 @@
 const path = require('path')
-const { benchmark } = require('yargs').boolean('benchmark').parse()
+const yargs = require('yargs')
+
+const { benchmark } = yargs
+  .boolean('benchmark')
+  .parse()
 
 module.exports = config => {
   const { CIRCLE_TEST_REPORTS } = process.env
   const ci = (CIRCLE_TEST_REPORTS != null)
+  const cover = !benchmark
   config.set({
     frameworks: [
       'mocha',
@@ -15,17 +20,17 @@ module.exports = config => {
     reporters: [
       ...(ci ? ['junit'] : []),
       'spec',
-      'coverage-istanbul'
+      ...(cover ? ['coverage-istanbul'] : [])
     ],
     files: [
       { pattern: 'test/fixtures/**', included: false },
-      'test/index.js'
+      benchmark ? 'test/benchmark.js' : 'test/index.js'
     ],
-    client: {
-      args: [{ benchmark }]
-    },
     preprocessors: {
-      '{src,test}/**/*.js': ['webpack', 'sourcemap']
+      '{src,test}/**/*.js': [
+        'webpack',
+        'sourcemap'
+      ]
     },
     webpack: {
       mode: 'development',
@@ -39,7 +44,7 @@ module.exports = config => {
               loader: 'babel-loader'
             }
           },
-          {
+          ...(cover ? [{
             test: /\.js$/,
             include: [
               path.resolve(__dirname, 'src'),
@@ -50,7 +55,7 @@ module.exports = config => {
               options: { esModules: true }
             },
             enforce: 'post'
-          }
+          }] : [])
         ]
       }
     },

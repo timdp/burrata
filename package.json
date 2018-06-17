@@ -27,7 +27,8 @@
     "build": "yarn run webpack",
     "test": "yarn run test:lint && yarn run test:e2e",
     "test:lint": "yarn run standard",
-    "test:e2e": "yarn run clean:coverage && yarn run karma start --single-run"
+    "test:e2e": "yarn run clean:coverage && yarn run karma start --single-run",
+    "benchmark": "yarn run karma start --single-run --benchmark"
   },
   "dependencies": {
     "@babel/runtime": "^7.0.0-beta.51",
