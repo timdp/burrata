@@ -33,7 +33,7 @@ module.exports = config => {
       }
     ],
     preprocessors: {
-      'src/**': ['webpack', 'coverage'],
+      'src/**': ['webpack'],
       'test/**/*.js': ['webpack']
     },
     webpack: {
@@ -50,7 +50,8 @@ module.exports = config => {
                   '@babel/preset-env'
                 ],
                 plugins: [
-                  '@babel/plugin-transform-runtime'
+                  '@babel/plugin-transform-runtime',
+                  'istanbul'
                 ]
               }
             }
@@ -59,12 +60,15 @@ module.exports = config => {
       }
     },
     coverageReporter: {
-      type: 'html',
-      dir: 'coverage/'
+      dir: 'coverage/',
+      reporters: [
+        { type: 'html', subdir: 'html' },
+        { type: 'text', subdir: '.' }
+      ]
     }
   }
   if (CIRCLE_TEST_REPORTS) {
-    settings.coverageReporter.type = 'lcov'
+    settings.coverageReporter.reporters.push({ type: 'lcov', subdir: '.' })
     settings.reporters.unshift('junit')
     settings.reporters.push('coveralls')
     settings.junitReporter = {

@@ -1,3 +1,6 @@
+import EventTarget from 'event-target-shim'
+import CustomEvent from 'custom-event'
+
 class Peer extends EventTarget {
   constructor (id, target, origin) {
     super()

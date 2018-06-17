@@ -1,3 +1,4 @@
+import CustomEvent from 'custom-event'
 import defer from 'p-defer'
 import serializeError from 'serialize-error'
 import { Peer } from './peer'

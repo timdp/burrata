@@ -30,6 +30,8 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.0.0-beta.51",
+    "custom-event": "^1.0.1",
+    "event-target-shim": "^3.0.1",
     "p-defer": "^1.0.0",
     "serialize-error": "^2.1.0"
   },
@@ -38,6 +40,7 @@
     "@babel/plugin-transform-runtime": "^7.0.0-beta.51",
     "@babel/preset-env": "^7.0.0-beta.51",
     "babel-loader": "^8.0.0-beta",
+    "babel-plugin-istanbul": "^4.1.6",
     "chai": "^4.1.2",
     "dirty-chai": "^2.0.1",
     "es6-error": "^4.1.1",
@@ -65,8 +68,6 @@
   },
   "standard": {
     "globals": [
-      "EventTarget",
-      "CustomEvent",
       "describe",
       "it",
       "before",
