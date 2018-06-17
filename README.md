@@ -4,6 +4,49 @@
 
 Robust, developer-friendly postMessage.
 
+## Usage
+
+1. Load `dist/burrata.js` with a `<script>` tag. This will put the `burrata`
+   object on the `window`.
+
+2. Create an instance of `Master`, register some commands, and call `init()` to
+   listen for commands from slaves:
+
+    ```js
+    const master = new burrata.Master()
+
+    // Register the "echo" command, which sends back the value of the "msg" arg.
+    master.setHandler('echo', async ({ msg }) => {
+      return msg
+    })
+
+    // Start listening for commands.
+    master.init()
+    ```
+
+3. Add an `<iframe>` for each slave. In the iframe HTML document, load
+   `burrata.js` again and set up the slave:
+
+    ```js
+    // Choose a unique ID for this slave.
+    const id = '123'
+    const slave = new burrata.Slave(id)
+
+    // Connect to master.
+    await slave.init()
+
+    // Call "echo" on master and print the result.
+    const response = await slave.send('echo', { msg: 'Hello!' })
+    console.log('Response: ' + response)
+    ```
+
+Slaves can define command handlers using the same API. See the [demo](demo/) for
+more examples.
+
+## Known Issues
+
+- Coverage reporting is currently broken.
+
 ## Author
 
 [Tim De Pauw](https://tmdpw.eu/)

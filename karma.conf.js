@@ -1,40 +1,27 @@
-const { CIRCLE_TEST_REPORTS } = process.env
-
 module.exports = config => {
-  const settings = {
+  const { CIRCLE_TEST_REPORTS } = process.env
+  const ci = (CIRCLE_TEST_REPORTS != null)
+  config.set({
     frameworks: [
       'mocha',
       'mocha-iframes',
       'dirty-chai'
     ],
     browsers: [
-      config.singleRun ? 'ChromeHeadless' : 'Chrome'
+      'ChromeHeadless'
     ],
     reporters: [
-      'spec',
-      'coverage'
+      ...(ci ? ['junit', 'spec'] : ['progress']),
+      'coverage',
+      ...(ci ? ['coveralls'] : [])
     ],
     files: [
-      {
-        pattern: 'src/**',
-        included: false
-      },
-      {
-        pattern: 'test/fixtures/**',
-        included: false
-      },
-      {
-        pattern: 'test/lib/setup.js',
-        watched: false
-      },
-      {
-        pattern: 'test/**/*.spec.js',
-        watched: false
-      }
+      { pattern: 'test/fixtures/**', included: false },
+      'test/lib/setup.js',
+      'test/**/*.spec.js'
     ],
     preprocessors: {
-      'src/**': ['webpack'],
-      'test/**/*.js': ['webpack']
+      '{src,test}/**/*.js': ['webpack']
     },
     webpack: {
       mode: 'development',
@@ -59,21 +46,16 @@ module.exports = config => {
         ]
       }
     },
+    junitReporter: {
+      outputDir: CIRCLE_TEST_REPORTS
+    },
     coverageReporter: {
       dir: 'coverage/',
       reporters: [
         { type: 'html', subdir: 'html' },
-        { type: 'text', subdir: '.' }
+        { type: 'text', subdir: '.' },
+        ...(ci ? [{ type: 'lcov', subdir: '.' }] : [])
       ]
     }
-  }
-  if (CIRCLE_TEST_REPORTS) {
-    settings.coverageReporter.reporters.push({ type: 'lcov', subdir: '.' })
-    settings.reporters.unshift('junit')
-    settings.reporters.push('coveralls')
-    settings.junitReporter = {
-      outputDir: CIRCLE_TEST_REPORTS
-    }
-  }
-  config.set(settings)
+  })
 }
