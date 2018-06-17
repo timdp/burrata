@@ -1,30 +1,31 @@
-const path = require('path')
 const yargs = require('yargs')
+const path = require('path')
 
-const { benchmark } = yargs
-  .boolean('benchmark')
+const { mode } = yargs
+  .string('mode').default('mode', 'spec')
   .parse()
 
 module.exports = config => {
   const { CIRCLE_TEST_REPORTS } = process.env
   const ci = (CIRCLE_TEST_REPORTS != null)
-  const cover = !benchmark
   config.set({
+    singleRun: true,
     frameworks: [
       'mocha',
       'dirty-chai'
     ],
     browsers: [
-      config.singleRun ? 'ChromeHeadless' : 'Chrome'
+      'ChromeHeadless',
+      ...(mode === 'spec' ? ['FirefoxHeadless'] : [])
     ],
     reporters: [
       ...(ci ? ['junit'] : []),
-      'spec',
-      ...(cover ? ['coverage-istanbul'] : [])
+      ...(mode === 'spec' ? ['spec'] : []),
+      ...(mode !== 'benchmark' ? ['coverage-istanbul'] : [])
     ],
     files: [
       { pattern: 'test/fixtures/**', included: false },
-      benchmark ? 'test/benchmark.js' : 'test/index.js'
+      (mode === 'benchmark') ? 'test/benchmark.js' : 'test/index.js'
     ],
     preprocessors: {
       '{src,test}/**/*.js': [
@@ -44,7 +45,7 @@ module.exports = config => {
               loader: 'babel-loader'
             }
           },
-          ...(cover ? [{
+          ...(mode !== 'benchmark' ? [{
             test: /\.js$/,
             include: [
               path.resolve(__dirname, 'src'),
@@ -64,7 +65,10 @@ module.exports = config => {
     },
     coverageIstanbulReporter: {
       dir: 'coverage',
-      reports: ['text', 'lcov'],
+      reports: [
+        'text',
+        ...(mode === 'cover' ? ['lcov'] : [])
+      ],
       fixWebpackSourcePaths: true
     }
   })
