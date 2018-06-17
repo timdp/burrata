@@ -1,4 +1,5 @@
 import defer from 'p-defer'
+import serializeError from 'serialize-error'
 import { Peer } from './peer'
 
 class Receiver {
@@ -65,11 +66,10 @@ class Receiver {
     try {
       result = await this._peer.handle(type, args, peer)
     } catch (err) {
-      let errStr = 'Unknown error'
+      error = { message: '' + err }
       try {
-        errStr = '' + err
-      } catch (err2) {}
-      error = { message: errStr }
+        error = serializeError(err)
+      } catch (_) {}
     } finally {
       peer._send('response', id, { error, result })
     }
@@ -82,7 +82,19 @@ class Receiver {
     const { resolve, reject } = this._dfds[id]
     delete this._dfds[id]
     if (error != null) {
-      reject(new Error(error.message))
+      const err = new Error(error.message)
+      ;['name', 'stack'].forEach(name => {
+        const value = error[name]
+        try {
+          Object.defineProperty(err, name, {
+            configurable: true,
+            enumerable: false,
+            value,
+            writable: true
+          })
+        } catch (_) {}
+      })
+      reject(err)
     } else {
       resolve(result)
     }

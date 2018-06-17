@@ -3,7 +3,7 @@ version: 2.0
 jobs:
   "node-8":
     docker:
-      - image: circleci/node:8-stretch
+      - image: circleci/node:8-stretch-browsers
     working_directory: ~/burrata
     steps:
       - run:
@@ -32,7 +32,9 @@ jobs:
           key: v1-dependencies-{{ checksum "yarn.lock" }}
       - run:
           name: Run tests
-          command: yarn run test:ci
+          command: yarn test
+          environment:
+            CIRCLE_TEST_REPORTS: /tmp/test-results
       - run:
           name: Report coverage
           command: yarn run coverage

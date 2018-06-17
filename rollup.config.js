@@ -1,19 +1,29 @@
 import loadPlugins from 'rollup-load-plugins'
 import { main, name } from './package.json'
 
-const $ = loadPlugins()
+const PLUGINS = loadPlugins()
+const ES_PACKAGES = [
+  'p-defer'
+]
 
 export default {
   input: main,
   plugins: [
-    $.nodeResolve({
+    PLUGINS.nodeResolve({
       browser: true
     }),
-    $.commonjs(),
-    $.babel({
+    PLUGINS.commonjs(),
+    PLUGINS.babel({
+      exclude: [
+        `node_modules/!(${ES_PACKAGES.join(',')})/**`
+      ],
       presets: [
         ['@babel/preset-env', { modules: false }]
-      ]
+      ],
+      plugins: [
+        '@babel/plugin-transform-runtime'
+      ],
+      runtimeHelpers: true
     })
   ],
   output: {

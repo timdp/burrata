@@ -48,7 +48,7 @@ class Master extends Peer {
       slaves.map(slave => slave.send(type, args)))
     const result = {}
     for (let i = 0; i < slaves.length; ++i) {
-      result[slaves[i]] = responses[i]
+      result[slaves[i].id] = responses[i]
     }
     return result
   }
