@@ -19,6 +19,7 @@ module.exports = CONFIGS.map(({ mode, filename }) => ({
   entry: ENTRY,
   output: {
     library: NAME,
+    libraryTarget: 'umd',
     filename,
     path: DIST
   },
