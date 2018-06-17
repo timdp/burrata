@@ -30,18 +30,7 @@ module.exports = config => {
           {
             test: /\.js$/,
             exclude: /\bnode_modules\b/,
-            use: {
-              loader: 'babel-loader',
-              options: {
-                presets: [
-                  '@babel/preset-env'
-                ],
-                plugins: [
-                  '@babel/plugin-transform-runtime',
-                  'istanbul'
-                ]
-              }
-            }
+            use: { loader: 'babel-loader' }
           }
         ]
       }
