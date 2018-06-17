@@ -1,4 +1,4 @@
-(() => {
+(async () => {
   const { Slave } = window.burrata
 
   const SLAVE_ID = window.location.hash.substr(1)
@@ -26,22 +26,20 @@
     return START_RESPONSE
   })
 
-  ;(async () => {
-    slave.log(`Connecting to master`)
-    try {
-      await slave.init()
-    } catch (err) {
-      slave.log(`Failed to connect to master: ${err}`)
-      return
-    }
-    slave.log(`Connected to master, sending ${PING_REQUEST}`)
-    let response
-    try {
-      response = await slave.send(PING_REQUEST, { demo: true })
-    } catch (err) {
-      slave.log(`Failed to send ${PING_REQUEST} to master: ${err}`)
-      return
-    }
-    slave.log(`Master responded to ${PING_REQUEST} with ${JSON.stringify(response)}`)
-  })()
+  slave.log(`Connecting to master`)
+  try {
+    await slave.init()
+  } catch (err) {
+    slave.log(`Failed to connect to master: ${err}`)
+    return
+  }
+  slave.log(`Connected to master, sending ${PING_REQUEST}`)
+  let response
+  try {
+    response = await slave.send(PING_REQUEST, { demo: true })
+  } catch (err) {
+    slave.log(`Failed to send ${PING_REQUEST} to master: ${err}`)
+    return
+  }
+  slave.log(`Master responded to ${PING_REQUEST} with ${JSON.stringify(response)}`)
 })()
