@@ -26,7 +26,7 @@
     "build": "yarn run clean:dist && yarn run build:bundle && yarn run build:minify",
     "build:bundle": "yarn run rollup -c",
     "build:minify": "yarn run uglifyjs -c -m -o dist/burrata.min.js dist/burrata.js",
-    "test": "yarn run test:lint && yarn run test:e2e",
+    "test": "yarn run build && yarn run test:lint && yarn run test:e2e",
     "test:lint": "yarn run standard",
     "test:e2e": "yarn run clean:coverage && yarn run karma start --single-run"
   },
