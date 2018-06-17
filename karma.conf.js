@@ -1,9 +1,6 @@
+const { CIRCLE_TEST_REPORTS } = process.env
 
 module.exports = config => {
-  const {
-    CI,
-    CIRCLE_TEST_REPORTS: outputDir
-  } = process.env
   const settings = {
     frameworks: [
       'mocha',
@@ -66,14 +63,12 @@ module.exports = config => {
       dir: 'coverage/'
     }
   }
-  if (CI) {
+  if (CIRCLE_TEST_REPORTS) {
     settings.coverageReporter.type = 'lcov'
-    settings.reporters.push('coveralls')
-  }
-  if (outputDir != null) {
     settings.reporters.unshift('junit')
+    settings.reporters.push('coveralls')
     settings.junitReporter = {
-      outputDir
+      outputDir: CIRCLE_TEST_REPORTS
     }
   }
   config.set(settings)
