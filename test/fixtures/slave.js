@@ -14,10 +14,8 @@ const { id } = JSON.parse(decodeURIComponent(window.location.hash.substr(1)))
 
   slave.setHandler('sum', async ({ a, b }) => a + b)
 
-  slave.setHandler('uppercase', async ({ strings }) => {
-    const stringsUpper = strings.slice().map(str => str.toUpperCase())
-    return stringsUpper
-  })
+  slave.setHandler('uppercase', async ({ strings }) =>
+    strings.map(str => str.toUpperCase()))
 
   slave.setHandler('trigger', async ({ type, args }) => {
     await slave.send(type, args)
