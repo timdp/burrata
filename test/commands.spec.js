@@ -1,5 +1,5 @@
 import defer from 'p-defer'
-import { setUpMasterWithSlave } from './lib/helpers'
+import { setUpMasterWithSlave } from './helpers'
 
 describe('Commands', function () {
   let master, slave

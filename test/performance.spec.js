@@ -2,7 +2,7 @@ import {
   setUpMasterWithSlave,
   setUpMasterWithSlaves,
   benchmark
-} from './lib/helpers'
+} from './helpers'
 
 const BENCHMARK_DURATION = 3000
 const NUM_SLAVES = 10

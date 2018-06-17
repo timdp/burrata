@@ -1,3 +1,5 @@
+const path = require('path')
+
 module.exports = config => {
   const { CIRCLE_TEST_REPORTS } = process.env
   const ci = (CIRCLE_TEST_REPORTS != null)
@@ -10,14 +12,14 @@ module.exports = config => {
       config.singleRun ? 'ChromeHeadless' : 'Chrome'
     ],
     reporters: [
-      ...(ci ? ['junit', 'spec'] : ['progress']),
-      'coverage',
+      ...(ci ? ['junit'] : []),
+      'spec',
+      'coverage-istanbul',
       ...(ci ? ['coveralls'] : [])
     ],
     files: [
       { pattern: 'test/fixtures/**', included: false },
-      'test/lib/setup.js',
-      'test/**/*.spec.js'
+      'test/index.js'
     ],
     preprocessors: {
       '{src,test}/**/*.js': ['webpack', 'sourcemap']
@@ -29,7 +31,7 @@ module.exports = config => {
         rules: [
           {
             test: /\.js$/,
-            exclude: /\bnode_modules\b/,
+            exclude: path.resolve(__dirname, 'node_modules'),
             use: {
               loader: 'babel-loader',
               options: {
@@ -45,6 +47,18 @@ module.exports = config => {
                 ]
               }
             }
+          },
+          {
+            test: /\.js$/,
+            include: [
+              path.resolve(__dirname, 'src'),
+              path.resolve(__dirname, 'test/fixtures')
+            ],
+            use: {
+              loader: 'istanbul-instrumenter-loader',
+              options: { esModules: true }
+            },
+            enforce: 'post'
           }
         ]
       }
@@ -52,13 +66,10 @@ module.exports = config => {
     junitReporter: {
       outputDir: CIRCLE_TEST_REPORTS
     },
-    coverageReporter: {
-      dir: 'coverage/',
-      reporters: [
-        { type: 'html', subdir: 'html' },
-        { type: 'text', subdir: '.' },
-        ...(ci ? [{ type: 'lcov', subdir: '.' }] : [])
-      ]
+    coverageIstanbulReporter: {
+      dir: 'coverage',
+      reports: ['text', 'lcov'],
+      fixWebpackSourcePaths: true
     }
   })
 }

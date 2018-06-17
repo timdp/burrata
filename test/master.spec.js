@@ -1,4 +1,4 @@
-import { setUpMasterWithSlaves } from './lib/helpers'
+import { setUpMasterWithSlaves } from './helpers'
 
 describe('Master', function () {
   let master

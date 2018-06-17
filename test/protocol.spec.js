@@ -1,4 +1,4 @@
-import { setUpMasterWithSlave } from './lib/helpers'
+import { setUpMasterWithSlave } from './helpers'
 
 describe('Protocol', function () {
   let master, slave

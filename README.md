@@ -45,7 +45,7 @@ more examples.
 
 ## Known Issues
 
-- Coverage reporting is currently broken.
+- Coverage reporting is partly broken. Actual coverage is higher.
 
 ## Author
 
