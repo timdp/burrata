@@ -3,7 +3,8 @@ import { main, name } from './package.json'
 
 const PLUGINS = loadPlugins()
 const ES_PACKAGES = [
-  'p-defer'
+  'p-defer',
+  'event-target-shim'
 ]
 
 export default {
@@ -14,8 +15,9 @@ export default {
     }),
     PLUGINS.commonjs(),
     PLUGINS.babel({
-      exclude: [
-        `node_modules/!(${ES_PACKAGES.join(',')})/**`
+      include: [
+        'src/**',
+        `node_modules/{${ES_PACKAGES.join(',')}}/**`
       ],
       presets: [
         ['@babel/preset-env', { modules: false }]
