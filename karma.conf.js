@@ -20,7 +20,7 @@ module.exports = config => {
     ],
     reporters: [
       ...(ci ? ['junit'] : []),
-      ...(mode === 'spec' ? ['spec'] : []),
+      ...(mode !== 'cover' ? ['spec'] : []),
       ...(mode !== 'benchmark' ? ['coverage-istanbul'] : [])
     ],
     files: [
