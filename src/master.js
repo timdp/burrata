@@ -1,8 +1,8 @@
-import { Peer } from './peer'
+import { Node } from './node'
 import { Receiver } from './receiver'
 import { Sender } from './sender'
 
-class SlaveStub extends Peer {
+class SlaveStub extends Node {
   constructor (master, id, target) {
     super(id, target, '*')
     this._master = master
@@ -18,7 +18,7 @@ class SlaveStub extends Peer {
   }
 }
 
-class Master extends Peer {
+class Master extends Node {
   constructor (target = window) {
     super('', target, '*')
     this._slaves = {}
@@ -54,9 +54,9 @@ class Master extends Peer {
   }
 
   _accept (id, win) {
-    const peer = new SlaveStub(this, id, win)
-    this._slaves[id] = peer
-    return peer
+    const node = new SlaveStub(this, id, win)
+    this._slaves[id] = node
+    return node
   }
 }
 

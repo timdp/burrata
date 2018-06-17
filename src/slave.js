@@ -1,8 +1,8 @@
-import { Peer } from './peer'
+import { Node } from './node'
 import { Receiver } from './receiver'
 import { Sender } from './sender'
 
-class Slave extends Peer {
+class Slave extends Node {
   constructor (id, target = window.parent, origin = '*') {
     super(id, target, origin)
     this._init(new Sender(this), new Receiver(this))

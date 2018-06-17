@@ -1,11 +1,11 @@
 import CustomEvent from 'custom-event'
 import defer from 'p-defer'
 import serializeError from 'serialize-error'
-import { Peer } from './peer'
+import { Node } from './node'
 
 class Receiver {
-  constructor (peer) {
-    this._peer = peer
+  constructor (node) {
+    this._node = node
     this._dfds = {}
     this._onMessage = this._onMessage.bind(this)
     this._commands = {
@@ -47,32 +47,32 @@ class Receiver {
   }
 
   async _handleConnect ({ id, from }, source) {
-    const slave = this._peer._accept(from, source)
+    const slave = this._node._accept(from, source)
     slave._send('response', id)
     const evt = new CustomEvent('connect', {
       detail: {
         slave
       }
     })
-    this._peer.dispatchEvent(evt)
+    this._node.dispatchEvent(evt)
   }
 
   async _handleRequest ({ id, from, payload: { type, args } }) {
-    if (!Peer.instances.hasOwnProperty(from)) {
+    if (!Node.instances.hasOwnProperty(from)) {
       return
     }
-    const peer = Peer.instances[from]
+    const node = Node.instances[from]
     let result = null
     let error = null
     try {
-      result = await this._peer.handle(type, args, peer)
+      result = await this._node.handle(type, args, node)
     } catch (err) {
       error = { message: '' + err }
       try {
         error = serializeError(err)
       } catch (_) {}
     } finally {
-      peer._send('response', id, { error, result })
+      node._send('response', id, { error, result })
     }
   }
 

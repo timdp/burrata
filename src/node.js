@@ -1,7 +1,7 @@
 import EventTarget from 'event-target-shim'
 import CustomEvent from 'custom-event'
 
-class Peer extends EventTarget {
+class Node extends EventTarget {
   constructor (id, target, origin) {
     super()
     this._id = id
@@ -10,7 +10,7 @@ class Peer extends EventTarget {
     this._handlers = {}
     this._sender = null
     this._receiver = null
-    Peer.instances[id] = this
+    Node.instances[id] = this
   }
 
   get id () {
@@ -67,6 +67,6 @@ class Peer extends EventTarget {
   }
 }
 
-Peer.instances = {}
+Node.instances = {}
 
-export { Peer }
+export { Node }
