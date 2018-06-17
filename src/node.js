@@ -1,7 +1,13 @@
 import EventTarget from 'event-target-shim'
 import CustomEvent from 'custom-event'
 
+const instances = {}
+
 class Node extends EventTarget {
+  static get instances () {
+    return instances
+  }
+
   constructor (id, target, origin) {
     super()
     this._id = id
@@ -10,7 +16,7 @@ class Node extends EventTarget {
     this._handlers = {}
     this._sender = null
     this._receiver = null
-    Node.instances[id] = this
+    instances[id] = this
   }
 
   get id () {
@@ -66,7 +72,5 @@ class Node extends EventTarget {
     return this._receiver._receive(id)
   }
 }
-
-Node.instances = {}
 
 export { Node }
