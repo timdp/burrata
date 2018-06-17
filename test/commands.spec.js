@@ -1,10 +1,11 @@
+import defer from 'p-defer'
 import { setUpMasterWithSlave } from './lib/helpers'
 
 describe('Commands', function () {
-  let slave
+  let master, slave
 
   beforeEach(async function () {
-    [, slave] = await setUpMasterWithSlave()
+    [master, slave] = await setUpMasterWithSlave()
   })
 
   // Command without args
@@ -33,6 +34,21 @@ describe('Commands', function () {
       const actual = await slave.send('uppercase', { strings })
       const expected = ['FOO', 'BAR']
       expect(actual).to.deep.equal(expected)
+    })
+  })
+
+  // Command that triggers master command (ping-pong style)
+  describe('trigger', function () {
+    it('triggers a master command', async function () {
+      const dfd = defer()
+      const type = 'dummy'
+      const args = { foo: 'bar' }
+      master.setHandler(type, async actualArgs => {
+        dfd.resolve(actualArgs)
+      })
+      await slave.send('trigger', { type, args })
+      const actualArgs = await dfd.promise
+      expect(actualArgs).to.deep.equal(args)
     })
   })
 
