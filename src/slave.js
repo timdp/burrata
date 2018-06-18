@@ -3,8 +3,8 @@ import { Receiver } from './receiver'
 import { Sender } from './sender'
 
 class Slave extends Node {
-  constructor (id, target = window.parent, origin = '*') {
-    super(id, target, origin)
+  constructor (ns, id, target = window.parent, origin = '*') {
+    super(ns, id, target, origin)
     this._init(new Sender(this), new Receiver(this))
   }
 
@@ -22,7 +22,7 @@ class Slave extends Node {
   }
 
   toString () {
-    return `Slave#${this.id}`
+    return `Slave{ns=${this.ns},id=${this.id}}`
   }
 }
 

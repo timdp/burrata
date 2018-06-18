@@ -7,7 +7,9 @@ describe('Master', function () {
     ctx = await setUpMasterWithSlaves(3)
   })
 
-  afterEach(() => ctx.dispose())
+  afterEach(function () {
+    ctx.dispose()
+  })
 
   describe('broadcast', function () {
     it('broadcasts to all slaves', async () => {

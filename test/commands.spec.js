@@ -8,7 +8,9 @@ describe('Commands', function () {
     ctx = await setUpMasterWithSlave()
   })
 
-  afterEach(() => ctx.dispose())
+  afterEach(function () {
+    ctx.dispose()
+  })
 
   // Command without args
   describe('noop', function () {

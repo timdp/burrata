@@ -1,9 +1,11 @@
 import ExtendableError from 'es6-error'
 import { Slave } from '../../src'
 
-const { id } = JSON.parse(decodeURIComponent(window.location.hash.substr(1)))
-;(async () => {
-  const slave = new Slave(id)
+  ;(async () => {
+  const { ns, id } = JSON.parse(
+    decodeURIComponent(window.location.hash.substr(1))
+  )
+  const slave = new Slave(ns, id)
 
   slave.setHandler('noop', async () => null)
 

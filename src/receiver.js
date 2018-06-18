@@ -1,5 +1,5 @@
 import defer from 'p-defer'
-import { Node } from './node'
+import { Nodes } from './nodes'
 import { serializeError, deserializeError, noop } from './util'
 
 const REQUIRED_DATA_PROPERTIES = ['type', 'from', 'id', 'payload']
@@ -34,19 +34,28 @@ class Receiver {
     return this._dfds[id].promise
   }
 
-  _onMessage (evt) {
+  toString () {
+    return `${this._node}#Receiver`
+  }
+
+  _onMessage (event) {
     let data = null
     try {
-      data = JSON.parse(evt.data)
+      data = JSON.parse(event.data)
     } catch (err) {}
-    if (data == null || typeof data !== 'object' || !isValidMessage(data)) {
+    if (
+      data == null ||
+      typeof data !== 'object' ||
+      data.ns !== this._node.ns ||
+      !isValidMessage(data)
+    ) {
       // TODO Handle
       return
     }
     const command = commands[data.type]
-    command.call(this, data, evt.source).catch(err => {
+    command.call(this, data, event.source).catch(error => {
       this._node._dispatchError(
-        new Error(`Failed to process ${data.type}: ${err}`)
+        new Error(`Failed to process ${data.type}: ${error}`)
       )
     })
   }
@@ -67,12 +76,12 @@ Object.assign(commands, {
     await slave._respond(id)
   },
 
-  async request ({ id, from, payload: { type, args } }) {
-    if (!Node.instances.hasOwnProperty(from)) {
+  async request ({ ns, id, from, payload: { type, args } }) {
+    if (!Nodes.has(ns, from)) {
       // TODO Handle
       return
     }
-    const source = Node.instances[from]
+    const source = Nodes.get(ns, from)
     let result = null
     let error = null
     try {

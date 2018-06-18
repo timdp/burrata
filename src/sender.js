@@ -12,8 +12,12 @@ class Sender {
     return this._rawSend('request', { type, args })
   }
 
-  async respond (id, response) {
-    await this._postMessage('response', id, response)
+  respond (id, response) {
+    this._postMessage('response', id, response)
+  }
+
+  toString () {
+    return `${this._node}#Sender`
   }
 
   async _rawSend (type, payload = {}) {
@@ -25,8 +29,8 @@ class Sender {
   }
 
   _postMessage (type, id, payload = {}) {
-    const { id: from, target, origin } = this._node
-    const msg = JSON.stringify({ type, from, id, payload })
+    const { ns, id: from, target, origin } = this._node
+    const msg = JSON.stringify({ type, from, ns, id, payload })
     target.postMessage(msg, origin)
   }
 }

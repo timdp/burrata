@@ -1,22 +1,22 @@
 import EventTarget from 'event-target-shim'
 import CustomEvent from 'custom-event'
-
-const instances = {}
+import { Nodes } from './nodes'
 
 class Node extends EventTarget {
-  static get instances () {
-    return instances
-  }
-
-  constructor (id, target, origin) {
+  constructor (ns, id, target, origin) {
     super()
+    this._ns = ns
     this._id = id
     this._target = target
     this._origin = origin
     this._handlers = {}
     this._sender = null
     this._receiver = null
-    instances[id] = this
+    Nodes.set(ns, id, this)
+  }
+
+  get ns () {
+    return this._ns
   }
 
   get id () {
@@ -52,7 +52,7 @@ class Node extends EventTarget {
   }
 
   async _respond (id, response) {
-    await this._sender.respond(id, response)
+    this._sender.respond(id, response)
   }
 
   async _receive (id) {

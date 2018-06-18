@@ -4,7 +4,7 @@ import { Sender } from './sender'
 
 class SlaveStub extends Node {
   constructor (master, id, target, origin) {
-    super(id, target, origin)
+    super(master.ns, id, target, origin)
     this._master = master
     this._init(new Sender(this), master._receiver)
   }
@@ -14,13 +14,13 @@ class SlaveStub extends Node {
   }
 
   toString () {
-    return `Slave#${this.id}`
+    return `Slave{ns=${this.ns},id=${this.id}}`
   }
 }
 
 class Master extends Node {
-  constructor (target = window, origin = '*') {
-    super('', target, origin)
+  constructor (ns = '', target = window, origin = '*') {
+    super(ns, '', target, origin)
     this._slaves = {}
     this._init(null, new Receiver(this))
   }
@@ -39,7 +39,7 @@ class Master extends Node {
   }
 
   toString () {
-    return 'Master'
+    return `Master{ns=${this.ns}}`
   }
 
   async broadcast (type, args = {}) {

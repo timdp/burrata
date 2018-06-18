@@ -13,8 +13,10 @@ const SLAVE_URL = (() => {
 
 let masterCount = 0
 
-export const setUpSlave = id => {
-  const config = { id }
+const newNamespace = () => 'm' + ++masterCount
+
+export const setUpSlave = (ns, id) => {
+  const config = { ns, id }
   const iframe = document.createElement('iframe')
   iframe.src = SLAVE_URL + '#' + encodeURIComponent(JSON.stringify(config))
   iframe.style.display = 'none'
@@ -22,11 +24,13 @@ export const setUpSlave = id => {
   return iframe
 }
 
-export const setUpMasterWithSlaves = async numSlaves => {
-  const ns = ++masterCount
-  const master = new Master()
+const setUpSlaves = async (master, numSlaves) => {
+  if (numSlaves <= 0) {
+    return
+  }
   const dfd = defer()
   const slaves = []
+  const iframes = []
   const onConnect = ({ detail: { slave } }) => {
     slaves.push(slave)
     if (slaves.length === numSlaves) {
@@ -35,13 +39,20 @@ export const setUpMasterWithSlaves = async numSlaves => {
     }
   }
   master.addEventListener('connect', onConnect)
-  const iframes = []
-  for (let id = 1; id <= numSlaves; ++id) {
-    const iframe = setUpSlave(`${ns}:${id}`)
+  for (let num = 1; num <= numSlaves; ++num) {
+    const id = 's' + num
+    const iframe = setUpSlave(master.ns, id)
     iframes.push(iframe)
   }
-  master.init()
   await dfd.promise
+  return [slaves, iframes]
+}
+
+export const setUpMasterWithSlaves = async (numSlaves, ns = newNamespace()) => {
+  const master = new Master(ns)
+  const settingUpSlaves = setUpSlaves(master, numSlaves)
+  master.init()
+  const [slaves, iframes] = await settingUpSlaves
   return {
     master,
     slave: slaves[0],
@@ -55,4 +66,5 @@ export const setUpMasterWithSlaves = async numSlaves => {
   }
 }
 
-export const setUpMasterWithSlave = () => setUpMasterWithSlaves(1)
+export const setUpMasterWithSlave = (ns = newNamespace()) =>
+  setUpMasterWithSlaves(1, ns)

@@ -5,6 +5,7 @@ const babelRule = require('./webpack.babel')
 const { mode } = yargs
   .option('mode', {
     type: 'string',
+    choices: ['spec', 'dev', 'cover', 'benchmark'],
     default: 'spec'
   })
   .parse()
@@ -13,13 +14,13 @@ module.exports = config => {
   const { CIRCLE_TEST_REPORTS } = process.env
   const ci = CIRCLE_TEST_REPORTS != null
   config.set({
-    singleRun: true,
+    singleRun: mode !== 'dev',
     browserNoActivityTimeout: mode === 'benchmark' ? 30000 : 10000,
     frameworks: ['mocha', 'dirty-chai'],
-    browsers: [
-      'ChromeHeadless',
-      ...(mode === 'spec' ? ['FirefoxHeadless'] : [])
-    ],
+    browsers:
+      mode === 'dev'
+        ? ['Chrome']
+        : ['ChromeHeadless', ...(mode === 'spec' ? ['FirefoxHeadless'] : [])],
     reporters: [
       ...(ci ? ['junit'] : []),
       ...(mode !== 'cover' ? ['spec'] : []),

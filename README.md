@@ -13,7 +13,8 @@ Robust, developer-friendly postMessage.
    listen for commands from slaves:
 
     ```js
-    const master = new burrata.Master()
+    const ns = 'testing' // Pick a namespace.
+    const master = new burrata.Master(ns)
 
     // Register the "echo" command, which sends back the value of the "msg" arg.
     master.setHandler('echo', async ({ msg }) => {
@@ -28,9 +29,9 @@ Robust, developer-friendly postMessage.
    `burrata.js` again and set up the slave:
 
     ```js
-    // Choose a unique ID for this slave.
-    const id = '123'
-    const slave = new burrata.Slave(id)
+    const ns = 'testing' // The same namespace as for the master.
+    const id = '123' // A unique ID for this slave.
+    const slave = new burrata.Slave(ns, id)
 
     // Connect to master.
     await slave.init()

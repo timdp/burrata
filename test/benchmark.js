@@ -20,7 +20,9 @@ describe('Benchmarks', function () {
     await delay(SLEEP_TIME)
   })
 
-  afterEach(() => ctx.dispose())
+  afterEach(function () {
+    ctx.dispose()
+  })
 
   describe('send', function () {
     this.timeout(BENCHMARK_DURATION + 1000)
