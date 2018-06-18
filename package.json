@@ -1,6 +1,6 @@
 {
   "name": "burrata",
-  "version": "0.2.3",
+  "version": "0.3.0",
   "description": "Robust, developer-friendly postMessage.",
   "repository": "https://github.com/timdp/burrata",
   "author": {
