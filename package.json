@@ -26,12 +26,12 @@
     "clean:coverage": "yarn run rimraf coverage",
     "build": "yarn run webpack && node scripts/assert-es dist/burrata.js dist/burrata.min.js",
     "test": "yarn run test:lint && yarn run test:e2e",
-    "test:lint": "yarn run standard",
+    "test:lint": "yarn run standard '*.js' '{src,test,scripts}/**/*.js'",
     "test:e2e": "yarn run clean:coverage && yarn run karma start",
     "test:cover": "yarn run karma start --mode=cover",
     "dev": "yarn run karma start --no-single-run",
     "benchmark": "yarn run karma start --mode=benchmark",
-    "format": "yarn run prettier-standard '{src,test}/**/*.js'",
+    "format": "yarn run prettier-standard '*.js' '{src,test,scripts}/**/*.js'",
     "precommit": "yarn run lint-staged"
   },
   "dependencies": {
@@ -97,6 +97,10 @@
   },
   "lint-staged": {
     "linters": {
+      "*.js": [
+        "prettier-standard",
+        "git add"
+      ],
       "{src,test,scripts}/**/*.js": [
         "prettier-standard",
         "git add"

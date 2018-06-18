@@ -3,19 +3,19 @@ const path = require('path')
 const babelRule = require('./webpack.babel')
 
 const { mode } = yargs
-  .string('mode').default('mode', 'spec')
+  .option('mode', {
+    type: 'string',
+    default: 'spec'
+  })
   .parse()
 
 module.exports = config => {
   const { CIRCLE_TEST_REPORTS } = process.env
-  const ci = (CIRCLE_TEST_REPORTS != null)
+  const ci = CIRCLE_TEST_REPORTS != null
   config.set({
     singleRun: true,
-    browserNoActivityTimeout: (mode === 'benchmark') ? 30000 : 10000,
-    frameworks: [
-      'mocha',
-      'dirty-chai'
-    ],
+    browserNoActivityTimeout: mode === 'benchmark' ? 30000 : 10000,
+    frameworks: ['mocha', 'dirty-chai'],
     browsers: [
       'ChromeHeadless',
       ...(mode === 'spec' ? ['FirefoxHeadless'] : [])
@@ -27,13 +27,10 @@ module.exports = config => {
     ],
     files: [
       { pattern: 'test/fixtures/**', included: false },
-      (mode === 'benchmark') ? 'test/benchmark.js' : 'test/index.js'
+      mode === 'benchmark' ? 'test/benchmark.js' : 'test/index.js'
     ],
     preprocessors: {
-      '{src,test}/**/*.js': [
-        'webpack',
-        'sourcemap'
-      ]
+      '{src,test}/**/*.js': ['webpack', 'sourcemap']
     },
     webpack: {
       mode: 'development',
@@ -41,18 +38,22 @@ module.exports = config => {
       module: {
         rules: [
           babelRule,
-          ...(mode !== 'benchmark' ? [{
-            test: /\.js$/,
-            include: [
-              path.resolve(__dirname, 'src'),
-              path.resolve(__dirname, 'test/fixtures')
-            ],
-            use: {
-              loader: 'istanbul-instrumenter-loader',
-              options: { esModules: true }
-            },
-            enforce: 'post'
-          }] : [])
+          ...(mode !== 'benchmark'
+            ? [
+              {
+                test: /\.js$/,
+                include: [
+                  path.resolve(__dirname, 'src'),
+                  path.resolve(__dirname, 'test/fixtures')
+                ],
+                use: {
+                  loader: 'istanbul-instrumenter-loader',
+                  options: { esModules: true }
+                },
+                enforce: 'post'
+              }
+            ]
+            : [])
         ]
       }
     },
@@ -61,10 +62,7 @@ module.exports = config => {
     },
     coverageIstanbulReporter: {
       dir: 'coverage',
-      reports: [
-        'text',
-        ...(mode === 'cover' ? ['lcov'] : [])
-      ],
+      reports: ['text', ...(mode === 'cover' ? ['lcov'] : [])],
       fixWebpackSourcePaths: true
     }
   })

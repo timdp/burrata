@@ -5,8 +5,10 @@ const yargs = require('yargs')
 const fs = require('fs')
 
 const { _: filenames, v: ecmaVersion } = yargs
-  .number('v')
-  .default('v', 5)
+  .option('v', {
+    type: 'number',
+    default: 5
+  })
   .strict()
   .parse()
 

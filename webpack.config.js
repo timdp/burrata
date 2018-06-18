@@ -28,8 +28,6 @@ module.exports = CONFIGS.map(({ minimize, filename }) => ({
     minimize
   },
   module: {
-    rules: [
-      babelRule
-    ]
+    rules: [babelRule]
   }
 }))
