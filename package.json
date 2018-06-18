@@ -26,7 +26,6 @@
     "clean:coverage": "yarn run rimraf dist",
     "build": "yarn run webpack",
     "test": "yarn run test:lint && yarn run test:e2e",
-    "test:ci": "yarn run test && yarn run test:cover",
     "test:lint": "yarn run standard",
     "test:e2e": "yarn run clean:coverage && yarn run karma start",
     "test:cover": "yarn run karma start --mode=cover",
