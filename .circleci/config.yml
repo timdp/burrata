@@ -32,7 +32,7 @@ jobs:
           key: v1-dependencies-{{ checksum "yarn.lock" }}
       - run:
           name: Run tests
-          command: yarn test
+          command: yarn run test:ci
           environment:
             CIRCLE_TEST_REPORTS: /tmp/test-results
       - run:
