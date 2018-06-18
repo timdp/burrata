@@ -9,6 +9,7 @@ const babelRule = {
   test: /\.js$/,
   include: [
     path.join(__dirname, 'src'),
+    path.join(__dirname, 'test'),
     ...(ES_PACKAGES.map(name => path.join(__dirname, 'node_modules', name)))
   ],
   exclude: [],
