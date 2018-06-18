@@ -1,39 +1,20 @@
-import CustomEvent from 'custom-event'
 import defer from 'p-defer'
-import serializeError from 'serialize-error'
 import { Node } from './node'
+import { serializeError, deserializeError, noop } from './util'
 
 const REQUIRED_DATA_PROPERTIES = ['type', 'from', 'id', 'payload']
-const ERROR_PROPERTIES = ['name', 'stack']
 
-const noop = () => {}
+const commands = {}
 
-const hydrateError = error => {
-  const err = new Error(error.message)
-  ERROR_PROPERTIES.forEach(name => {
-    const value = error[name]
-    try {
-      Object.defineProperty(err, name, {
-        configurable: true,
-        enumerable: false,
-        value,
-        writable: true
-      })
-    } catch (_) {}
-  })
-  return err
-}
+const isValidMessage = data =>
+  !REQUIRED_DATA_PROPERTIES.some(name => data[name] == null) &&
+  commands.hasOwnProperty(data.type)
 
 class Receiver {
   constructor (node) {
     this._node = node
     this._dfds = {}
     this._onMessage = this._onMessage.bind(this)
-    this._commands = {
-      connect: this._handleConnect.bind(this),
-      request: this._handleRequest.bind(this),
-      response: this._handleResponse.bind(this)
-    }
   }
 
   init () {
@@ -44,7 +25,7 @@ class Receiver {
     window.removeEventListener('message', this._onMessage)
   }
 
-  async _receive (id) {
+  async receive (id) {
     if (!this._dfds.hasOwnProperty(id)) {
       const dfd = defer()
       dfd.promise.catch(noop)
@@ -58,73 +39,64 @@ class Receiver {
     try {
       data = JSON.parse(evt.data)
     } catch (err) {}
-    if (
-      data == null ||
-      typeof data !== 'object' ||
-      REQUIRED_DATA_PROPERTIES.some(name => data[name] == null) ||
-      !this._commands.hasOwnProperty(data.type)
-    ) {
-      // TODO Warn
+    if (data == null || typeof data !== 'object' || !isValidMessage(data)) {
+      // TODO Handle
       return
     }
-    this._commands[data.type](data, evt.source).catch(err => {
-      this._dispatchError(new Error(`Failed to process ${data.type}: ${err}`))
+    const command = commands[data.type]
+    command.call(this, data, evt.source).catch(err => {
+      this._node._dispatchError(
+        new Error(`Failed to process ${data.type}: ${err}`)
+      )
     })
   }
+}
 
-  async _handleConnect ({ id, from }, source) {
+Object.assign(commands, {
+  async connect ({ id, from }, source) {
     let slave
     try {
       slave = this._node._accept(from, source)
     } catch (err) {
-      this._dispatchError(new Error(`Failed to accept connection: ${err}`))
+      this._node._dispatchError(
+        new Error(`Failed to accept connection: ${err}`)
+      )
       return
     }
-    this._dispatchEvent('connect', { slave })
-    await slave._send('response', id)
-  }
+    this._node._dispatchEvent('connect', { slave })
+    await slave._respond(id)
+  },
 
-  async _handleRequest ({ id, from, payload: { type, args } }) {
+  async request ({ id, from, payload: { type, args } }) {
     if (!Node.instances.hasOwnProperty(from)) {
-      // TODO Warn
+      // TODO Handle
       return
     }
-    const node = Node.instances[from]
+    const source = Node.instances[from]
     let result = null
     let error = null
     try {
-      result = await this._node.handle(type, args, node)
+      result = await this._node._handle(type, args, source)
     } catch (err) {
-      error = { message: '' + err }
-      try {
-        error = serializeError(err)
-      } catch (_) {}
+      error = serializeError(err)
     } finally {
-      await node._send('response', id, { error, result })
+      await source._respond(id, { error, result })
     }
-  }
+  },
 
-  async _handleResponse ({ id, from, payload: { error, result } }) {
+  async response ({ id, from, payload: { error, result } }) {
     if (!this._dfds.hasOwnProperty(id)) {
-      // TODO Warn
+      // TODO Handle
       return
     }
     const { resolve, reject } = this._dfds[id]
     delete this._dfds[id]
     if (error != null) {
-      reject(hydrateError(error))
+      reject(deserializeError(error))
     } else {
       resolve(result)
     }
   }
-
-  _dispatchError (error) {
-    this._dispatchEvent('error', { error })
-  }
-
-  _dispatchEvent (type, detail) {
-    this._node.dispatchEvent(new CustomEvent(type, { detail }))
-  }
-}
+})
 
 export { Receiver }

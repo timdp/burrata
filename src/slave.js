@@ -17,7 +17,7 @@ class Slave extends Node {
     this._receiver.dispose()
   }
 
-  async send (type, args = {}) {
+  async send (type, args) {
     return this._sender.send(type, args)
   }
 

@@ -6,7 +6,7 @@ class SlaveStub extends Node {
   constructor (master, id, target, origin) {
     super(id, target, origin)
     this._master = master
-    this._init(new Sender(this), master.receiver)
+    this._init(new Sender(this), master._receiver)
   }
 
   async send (type, args = {}) {

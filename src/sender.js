@@ -5,22 +5,26 @@ class Sender {
   }
 
   async init () {
-    return this._sendAndReceive('connect')
+    await this._rawSend('connect')
   }
 
   async send (type, args) {
-    return this._sendAndReceive('request', { type, args })
+    return this._rawSend('request', { type, args })
   }
 
-  async _sendAndReceive (command, payload = {}) {
+  async respond (id, response) {
+    await this._postMessage('response', id, response)
+  }
+
+  async _rawSend (type, payload = {}) {
     const msgId = this._msgId++
     const id = `${this._node.id}:${msgId}`
     const receiving = this._node._receive(id)
-    this._send(command, id, payload)
+    this._postMessage(type, id, payload)
     return receiving
   }
 
-  _send (type, id, payload = {}) {
+  _postMessage (type, id, payload = {}) {
     const { id: from, target, origin } = this._node
     const msg = JSON.stringify({ type, from, id, payload })
     target.postMessage(msg, origin)

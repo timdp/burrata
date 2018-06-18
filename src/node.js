@@ -31,28 +31,15 @@ class Node extends EventTarget {
     return this._origin
   }
 
-  get sender () {
-    return this._sender
-  }
-
-  get receiver () {
-    return this._receiver
-  }
-
   log (message) {
-    const evt = new CustomEvent('log', {
-      detail: {
-        message
-      }
-    })
-    this.dispatchEvent(evt)
+    this._dispatchEvent('log', { message })
   }
 
   setHandler (type, handler) {
     this._handlers[type] = handler
   }
 
-  async handle (type, args, source) {
+  async _handle (type, args, source) {
     if (!this._handlers.hasOwnProperty(type)) {
       throw new Error(`Unknown command: ${type}`)
     }
@@ -64,12 +51,20 @@ class Node extends EventTarget {
     this._receiver = receiver
   }
 
-  _send (type, id, payload = {}) {
-    this._sender._send(type, id, payload)
+  async _respond (id, response) {
+    await this._sender.respond(id, response)
   }
 
   async _receive (id) {
-    return this._receiver._receive(id)
+    return this._receiver.receive(id)
+  }
+
+  _dispatchError (error) {
+    this._dispatchEvent('error', { error })
+  }
+
+  _dispatchEvent (type, detail) {
+    this.dispatchEvent(new CustomEvent(type, { detail }))
   }
 }
 
