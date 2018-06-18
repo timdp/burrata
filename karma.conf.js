@@ -1,5 +1,6 @@
 const yargs = require('yargs')
 const path = require('path')
+const babelRule = require('./webpack.babel')
 
 const { mode } = yargs
   .string('mode').default('mode', 'spec')
@@ -39,13 +40,7 @@ module.exports = config => {
       devtool: 'inline-source-map',
       module: {
         rules: [
-          {
-            test: /\.js$/,
-            exclude: path.resolve(__dirname, 'node_modules'),
-            use: {
-              loader: 'babel-loader'
-            }
-          },
+          babelRule,
           ...(mode !== 'benchmark' ? [{
             test: /\.js$/,
             include: [

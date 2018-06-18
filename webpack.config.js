@@ -1,4 +1,5 @@
 const path = require('path')
+const babelRule = require('./webpack.babel')
 const { name: NAME } = require('./package.json')
 
 const ENTRY = './src/index.js'
@@ -25,13 +26,7 @@ module.exports = CONFIGS.map(({ mode, filename }) => ({
   },
   module: {
     rules: [
-      {
-        test: /\.js$/,
-        exclude: /\bnode_modules\b/,
-        use: {
-          loader: 'babel-loader'
-        }
-      }
+      babelRule
     ]
   }
 }))
