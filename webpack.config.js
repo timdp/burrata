@@ -6,23 +6,26 @@ const ENTRY = './src/index.js'
 const DIST = path.resolve(__dirname, 'dist')
 const CONFIGS = [
   {
-    mode: 'development',
+    minimize: false,
     filename: 'burrata.js'
   },
   {
-    mode: 'production',
+    minimize: true,
     filename: 'burrata.min.js'
   }
 ]
 
-module.exports = CONFIGS.map(({ mode, filename }) => ({
-  mode,
+module.exports = CONFIGS.map(({ minimize, filename }) => ({
+  mode: 'production',
   entry: ENTRY,
   output: {
     library: NAME,
     libraryTarget: 'umd',
     filename,
     path: DIST
+  },
+  optimization: {
+    minimize
   },
   module: {
     rules: [
