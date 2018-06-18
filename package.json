@@ -24,7 +24,7 @@
     "clean": "yarn run clean:dist && yarn run clean:coverage",
     "clean:dist": "yarn run rimraf dist",
     "clean:coverage": "yarn run rimraf coverage",
-    "build": "yarn run webpack",
+    "build": "yarn run webpack && node scripts/assert-es dist/burrata.js dist/burrata.min.js",
     "test": "yarn run test:lint && yarn run test:e2e",
     "test:lint": "yarn run standard",
     "test:e2e": "yarn run clean:coverage && yarn run karma start",
@@ -45,6 +45,7 @@
     "@babel/core": "^7.0.0-beta.51",
     "@babel/plugin-transform-runtime": "^7.0.0-beta.51",
     "@babel/preset-env": "^7.0.0-beta.51",
+    "acorn": "^5.7.1",
     "babel-loader": "^8.0.0-beta",
     "chai": "^4.1.2",
     "coveralls": "^3.0.1",
@@ -96,7 +97,7 @@
   },
   "lint-staged": {
     "linters": {
-      "{src,test}/**/*.js": [
+      "{src,test,scripts}/**/*.js": [
         "prettier-standard",
         "git add"
       ]
