@@ -1,24 +1,24 @@
 import defer from 'p-defer'
 import { Master } from '../../src'
 
-const SLAVE_URL = (() => {
+const FIXTURES_URL = (() => {
   const alternatives = {
     localhost: '127.0.0.1',
     '127.0.0.1': 'localhost'
   }
   const { hostname, port } = window.location
   const base = '//' + (alternatives[hostname] || hostname) + ':' + port
-  return base + '/base/test/fixtures/slave.html'
+  return base + '/base/test/fixtures'
 })()
+const SLAVE_URL = FIXTURES_URL + '/slave.html'
 
 let masterCount = 0
 
 const newNamespace = () => 'm' + ++masterCount
 
-export const setUpSlave = (ns, id) => {
-  const config = { ns, id }
+export const createIframe = (url, config) => {
   const iframe = document.createElement('iframe')
-  iframe.src = SLAVE_URL + '#' + encodeURIComponent(JSON.stringify(config))
+  iframe.src = url + '#' + encodeURIComponent(JSON.stringify(config))
   iframe.style.display = 'none'
   document.body.appendChild(iframe)
   return iframe
@@ -31,8 +31,8 @@ const setUpSlaves = async (master, numSlaves) => {
   const dfd = defer()
   const slaves = []
   const iframes = []
-  const onConnect = ({ detail: { slave } }) => {
-    slaves.push(slave)
+  const onConnect = ({ detail: { node } }) => {
+    slaves.push(node)
     if (slaves.length === numSlaves) {
       master.removeEventListener('connect', onConnect)
       dfd.resolve()
@@ -41,7 +41,7 @@ const setUpSlaves = async (master, numSlaves) => {
   master.addEventListener('connect', onConnect)
   for (let num = 1; num <= numSlaves; ++num) {
     const id = 's' + num
-    const iframe = setUpSlave(master.ns, id)
+    const iframe = createIframe(SLAVE_URL, { ns: master.ns, id })
     iframes.push(iframe)
   }
   await dfd.promise
@@ -49,7 +49,7 @@ const setUpSlaves = async (master, numSlaves) => {
 }
 
 export const setUpMasterWithSlaves = async (numSlaves, ns = newNamespace()) => {
-  const master = new Master(ns)
+  const master = new Master({ ns })
   const settingUpSlaves = setUpSlaves(master, numSlaves)
   master.init()
   const [slaves, iframes] = await settingUpSlaves

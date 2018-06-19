@@ -27,3 +27,9 @@ export const deserializeError = error => {
   })
   return err
 }
+
+export const describe = (inst, props = []) =>
+  inst.constructor.name +
+  '{' +
+  props.map(name => `${name}=${inst[name]}`).join(',') +
+  '}'

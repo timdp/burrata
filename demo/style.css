@@ -13,36 +13,84 @@ html, body {
 }
 
 body {
-  display: flex;
-  flex-direction: column;
+  padding: 1em;
 }
 
-.iframes, .log {
-  flex: 1;
-  overflow: auto;
+body.inner {
+  padding: 0;
 }
 
-.iframes {
-  display: flex;
-  flex-direction: row;
-}
-
-.iframes iframe {
-  flex: 1;
-  overflow: auto;
+iframe {
   border: 0;
 }
 
-fieldset {
-  padding: 0.5em;
+.hflex, .vflex {
+  display: flex;
   width: 100%;
   height: 100%;
+}
+
+.vflex {
+  height: 100%;
+  flex-direction: column;
+}
+
+.hflex > *, .vflex > * {
+  flex: 1;
+  overflow: hidden;
+}
+
+.pane {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  max-height: 100%;
+}
+
+.pane > .title {
+  flex: 0;
+  padding: 1em;
+  text-transform: uppercase;
+  font-weight: bold;
+  background: #666;
+  color: white;
+  border: 0.25em solid white;
+}
+
+.pane > .contents {
+  flex: 1;
+  overflow: hidden;
+}
+
+iframe, .log {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.log {
+  padding: 1em;
+}
+
+.logs {
+  width: 100%;
+  height: 100%;
+  overflow: auto;
 }
 
 .log div {
   margin-bottom: 0.5em;
 }
 
-.error {
+.log .debug {
+  color: gray;
+}
+
+.log .warn {
+  color: orange;
+}
+
+.log .error {
   color: red;
 }

@@ -10,7 +10,7 @@
   const START_REQUEST = 'start'
   const START_RESPONSE = 'started'
 
-  const slave = new Slave(NAMESPACE, SLAVE_ID)
+  const slave = new Slave({ ns: NAMESPACE, id: SLAVE_ID })
 
   window.setUpLog(slave)
 

@@ -13,7 +13,7 @@
   const HANDSHAKE_VERSION = '1.0.0'
   const START_REQUEST = 'start'
 
-  const master = new Master(NAMESPACE)
+  const master = new Master({ ns: NAMESPACE })
 
   window.setUpLog(master)
 
@@ -53,11 +53,11 @@
     master.log(`Responses to ${START_REQUEST}: ${JSON.stringify(responses)}`)
   }
 
-  const onConnect = ({ detail: { slave } }) => {
-    master.log(`Slave ${slave} connected`)
+  const onConnect = ({ detail: { node } }) => {
+    master.log(`Slave ${node} connected`)
     const slaveIds = Object.keys(master.slaves)
     const allReady = slaveIds.length === DESIRED_SLAVE_COUNT
-    performHandshake(slave).then(() => {
+    performHandshake(node).then(() => {
       if (allReady) {
         master.log(`${DESIRED_SLAVE_COUNT} slaves connected`)
         master.removeEventListener('connect', onConnect)

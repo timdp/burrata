@@ -1,4 +1,4 @@
-(() => {
+;(() => {
   const pad = len => num => {
     num = '' + num
     while (num.length < len) {
@@ -11,6 +11,14 @@
 
   const pad3 = pad(3)
 
+  const describe = win => {
+    let descr = '[unknown]'
+    try {
+      descr = win.location.href
+    } catch (_) {}
+    return descr
+  }
+
   const formatTime = date => {
     const hms = [date.getHours(), date.getMinutes(), date.getSeconds()]
       .map(pad2)
@@ -19,19 +27,17 @@
     return `${hms}.${ms}`
   }
 
-  const addLogEntry = (logs, message, isError = false) => {
+  const addLogEntry = (logs, message, level) => {
     const time = formatTime(new Date())
     const div = document.createElement('div')
-    div.className = isError ? 'error' : 'info'
+    div.className = level
     div.innerText = `[${time}] ${message}`
     logs.appendChild(div)
   }
 
   window.setUpLog = node => {
-    const logs = document.createElement('fieldset')
-    const legend = document.createElement('legend')
-    legend.innerText = node.toString()
-    logs.appendChild(legend)
+    const logs = document.createElement('div')
+    logs.className = 'logs'
 
     new Promise(resolve => {
       if (document.body != null) {
@@ -43,15 +49,47 @@
       document.querySelector('.log').appendChild(logs)
     })
 
-    node.addEventListener('log', ({ detail: { message } }) => {
-      console.info(`${node}: ${message}`)
-      addLogEntry(logs, message)
-    })
+    const log = (level, message) => {
+      console[level](`${node}: ${message}`)
+      addLogEntry(logs, message, level)
+    }
 
-    node.addEventListener('error', ({ detail: { error } }) => {
-      const message = '' + error
-      console.error(`${node}: ${message}`)
-      addLogEntry(logs, message, true)
-    })
+    const logNodeEvents = n => {
+      const prefix = node !== n ? `${n}: ` : ''
+      const nodeLog = (level, message) => log(level, prefix + message)
+      n.addEventListener('log', ({ detail: { message } }) => {
+        nodeLog('info', message)
+      })
+      n.addEventListener('send', ({ detail: { data, target } }) => {
+        nodeLog(
+          'debug',
+          `Sending ${JSON.stringify(data)} to ${describe(target)}`
+        )
+      })
+      n.addEventListener('receive', ({ detail: { data, source } }) => {
+        nodeLog(
+          'debug',
+          `Received ${JSON.stringify(data)} from ${describe(source)}`
+        )
+      })
+      n.addEventListener('connect', ({ detail: { node: newNode } }) => {
+        nodeLog('debug', `Accepting connection from ${newNode}`)
+        logNodeEvents(newNode)
+      })
+      n.addEventListener('warn', ({ detail: { message } }) => {
+        nodeLog('warn', message)
+      })
+      n.addEventListener('error', ({ detail: { error } }) => {
+        nodeLog('error', '' + error)
+      })
+    }
+
+    logNodeEvents(node)
+
+    if (node.master != null) {
+      logNodeEvents(node.master)
+    }
+
+    node.log('Starting')
   }
 })()

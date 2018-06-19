@@ -1,11 +1,23 @@
 import { Node } from './node'
+import { Stub } from './stub'
 import { Receiver } from './receiver'
 import { Sender } from './sender'
 
+class MasterStub extends Stub {
+  constructor (slave) {
+    super(slave, { id: '', target: slave.target })
+  }
+}
+
 class Slave extends Node {
-  constructor (ns, id, target = window.parent, origin = '*') {
-    super(ns, id, target, origin)
+  constructor ({ ns, id, source = window, target = window.parent, origin }) {
+    super({ ns, id, source, target, origin })
+    this._master = new MasterStub(this)
     this._init(new Sender(this), new Receiver(this))
+  }
+
+  get master () {
+    return this._master
   }
 
   async init () {
@@ -21,8 +33,8 @@ class Slave extends Node {
     return this._sender.send(type, args)
   }
 
-  toString () {
-    return `Slave{ns=${this.ns},id=${this.id}}`
+  _resolve (id) {
+    return id === '' ? this._master : null
   }
 }
 

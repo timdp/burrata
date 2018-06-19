@@ -1,18 +1,28 @@
 import EventTarget from 'event-target-shim'
 import CustomEvent from 'custom-event'
-import { Nodes } from './nodes'
+import { describe } from './util'
+
+const randomId = () => '' + (1e7 + Math.floor(Math.random() * 9e7))
 
 class Node extends EventTarget {
-  constructor (ns, id, target, origin) {
+  constructor ({
+    ns = '',
+    id = randomId(),
+    from = id,
+    source,
+    target,
+    origin = '*'
+  }) {
     super()
     this._ns = ns
     this._id = id
+    this._from = from
+    this._source = source
     this._target = target
     this._origin = origin
     this._handlers = {}
     this._sender = null
     this._receiver = null
-    Nodes.set(ns, id, this)
   }
 
   get ns () {
@@ -21,6 +31,14 @@ class Node extends EventTarget {
 
   get id () {
     return this._id
+  }
+
+  get from () {
+    return this._from
+  }
+
+  get source () {
+    return this._source
   }
 
   get target () {
@@ -37,6 +55,10 @@ class Node extends EventTarget {
 
   setHandler (type, handler) {
     this._handlers[type] = handler
+  }
+
+  toString () {
+    return describe(this, ['ns', 'id'])
   }
 
   async _handle (type, args, source) {

@@ -1,26 +1,14 @@
 import { Node } from './node'
+import { Stub } from './stub'
 import { Receiver } from './receiver'
-import { Sender } from './sender'
 
-class SlaveStub extends Node {
-  constructor (master, id, target, origin) {
-    super(master.ns, id, target, origin)
-    this._master = master
-    this._init(new Sender(this), master._receiver)
-  }
+const ID = ''
 
-  async send (type, args = {}) {
-    return this._sender.send(type, args)
-  }
-
-  toString () {
-    return `Slave{ns=${this.ns},id=${this.id}}`
-  }
-}
+class SlaveStub extends Stub {}
 
 class Master extends Node {
-  constructor (ns = '', target = window, origin = '*') {
-    super(ns, '', target, origin)
+  constructor ({ ns, source = window, origin } = {}) {
+    super({ ns, id: ID, source, origin })
     this._slaves = {}
     this._init(null, new Receiver(this))
   }
@@ -38,10 +26,6 @@ class Master extends Node {
     this._slaves = {}
   }
 
-  toString () {
-    return `Master{ns=${this.ns}}`
-  }
-
   async broadcast (type, args = {}) {
     const slaves = Object.values(this._slaves)
     const responses = await Promise.all(
@@ -54,10 +38,14 @@ class Master extends Node {
     return result
   }
 
-  _accept (id, win) {
-    const node = new SlaveStub(this, id, win, '*')
+  _accept (id, target) {
+    const node = new SlaveStub(this, { id, target })
     this._slaves[id] = node
     return node
+  }
+
+  _resolve (id) {
+    return this._slaves[id]
   }
 }
 
