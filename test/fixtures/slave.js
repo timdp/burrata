@@ -1,6 +1,7 @@
 import ExtendableError from 'es6-error'
 import { Slave } from '../../src'
-  ;(async () => {
+
+const runSlave = async () => {
   const { ns, id } = JSON.parse(
     decodeURIComponent(window.location.hash.substr(1))
   )
@@ -29,4 +30,8 @@ import { Slave } from '../../src'
   })
 
   await slave.init()
-})()
+}
+
+runSlave().catch(err => {
+  console.error(err)
+})
