@@ -1,8 +1,12 @@
 ;(async () => {
   const { Peer } = window.burrata
+  const { delay } = window
 
   const NAMESPACE = 'demo'
   const SLAVE_ID = window.location.hash.substr(1) || '1'
+
+  // Number of seconds to wait for the other iframe to load
+  const DELAY = 2
 
   // Protocol
   const PING_REQUEST = 'ping'
@@ -22,9 +26,13 @@
     return PONG_RESPONSE
   })
 
+  peer.log(`Starting to listen for peer connection`)
+  peer.listen()
+  peer.log(`Giving peer ${DELAY} second(s) to initialize`)
+  await delay(DELAY * 1000)
   peer.log(`Connecting to peer`)
   try {
-    await peer.init()
+    await peer.connect()
   } catch (err) {
     peer.log(`Failed to connect to peer: ${err}`)
     return

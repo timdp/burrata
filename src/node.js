@@ -1,8 +1,6 @@
 import EventTarget from 'event-target-shim'
 import CustomEvent from 'custom-event'
-import { describe } from './util'
-
-const randomId = () => '' + (1e7 + Math.floor(Math.random() * 9e7))
+import { randomId, describe } from './util'
 
 class Node extends EventTarget {
   constructor ({

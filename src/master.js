@@ -1,14 +1,13 @@
 import { Node } from './node'
 import { Stub } from './stub'
 import { Receiver } from './receiver'
-
-const ID = ''
+import { MASTER_ID } from './constants'
 
 class SlaveStub extends Stub {}
 
 class Master extends Node {
   constructor ({ ns, source = window, origin } = {}) {
-    super({ ns, id: ID, source, origin })
+    super({ ns, id: MASTER_ID, source, origin })
     this._slaves = {}
     this._init(null, new Receiver(this))
   }
@@ -18,6 +17,10 @@ class Master extends Node {
   }
 
   init () {
+    this.listen()
+  }
+
+  listen () {
     this._receiver.init()
   }
 

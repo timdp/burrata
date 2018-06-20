@@ -1,8 +1,9 @@
 import serializeErrorUnsafe from 'serialize-error'
-
-const ERROR_PROPERTIES = ['name', 'stack']
+import { ERROR_PROPERTIES } from './constants'
 
 export const noop = () => {}
+
+export const randomId = () => '' + (1e7 + Math.floor(Math.random() * 9e7))
 
 export const serializeError = err => {
   let error = { message: '' + err }

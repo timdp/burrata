@@ -1,40 +1,25 @@
-import { Node } from './node'
+import { Duplex } from './duplex'
 import { Stub } from './stub'
-import { Receiver } from './receiver'
-import { Sender } from './sender'
+import { MASTER_ID } from './constants'
 
 class MasterStub extends Stub {
   constructor (slave) {
-    super(slave, { id: '', target: slave.target })
+    super(slave, { id: MASTER_ID, target: slave.target })
   }
 }
 
-class Slave extends Node {
+class Slave extends Duplex {
   constructor ({ ns, id, source = window, target = window.parent, origin }) {
     super({ ns, id, source, target, origin })
     this._master = new MasterStub(this)
-    this._init(new Sender(this), new Receiver(this))
   }
 
   get master () {
     return this._master
   }
 
-  async init () {
-    this._receiver.init()
-    await this._sender.init()
-  }
-
-  dispose () {
-    this._receiver.dispose()
-  }
-
-  async send (type, args) {
-    return this._sender.send(type, args)
-  }
-
   _resolve (id) {
-    return id === '' ? this._master : null
+    return id === MASTER_ID ? this._master : null
   }
 }
 
