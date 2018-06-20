@@ -98,15 +98,9 @@
     ]
   },
   "lint-staged": {
-    "linters": {
-      "*.js": [
-        "prettier-standard",
-        "git add"
-      ],
-      "{src,test,scripts,demo}/**/*.js": [
-        "prettier-standard",
-        "git add"
-      ]
-    }
+    "*.js": [
+      "prettier-standard",
+      "git add"
+    ]
   }
 }
