@@ -1,5 +1,5 @@
 import defer from 'p-defer'
-import { Master } from '../../src'
+import { Server } from '../../src'
 
 const FIXTURES_URL = (() => {
   const alternatives = {
@@ -10,11 +10,11 @@ const FIXTURES_URL = (() => {
   const base = '//' + (alternatives[hostname] || hostname) + ':' + port
   return base + '/base/test/fixtures'
 })()
-const SLAVE_URL = FIXTURES_URL + '/slave.html'
+const CLIENT_URL = FIXTURES_URL + '/client.html'
 
-let masterCount = 0
+let serverCount = 0
 
-const newNamespace = () => 'm' + ++masterCount
+const newNamespace = () => 'm' + ++serverCount
 
 export const createIframe = (url, config) => {
   const iframe = document.createElement('iframe')
@@ -24,41 +24,44 @@ export const createIframe = (url, config) => {
   return iframe
 }
 
-const setUpSlaves = async (master, numSlaves) => {
-  if (numSlaves <= 0) {
+const setUpClients = async (server, numClients) => {
+  if (numClients <= 0) {
     return
   }
   const dfd = defer()
-  const slaves = []
+  const clients = []
   const iframes = []
   const onConnect = ({ detail: { node } }) => {
-    slaves.push(node)
-    if (slaves.length === numSlaves) {
-      master.removeEventListener('connect', onConnect)
+    clients.push(node)
+    if (clients.length === numClients) {
+      server.removeEventListener('connect', onConnect)
       dfd.resolve()
     }
   }
-  master.addEventListener('connect', onConnect)
-  for (let num = 1; num <= numSlaves; ++num) {
+  server.addEventListener('connect', onConnect)
+  for (let num = 1; num <= numClients; ++num) {
     const id = 's' + num
-    const iframe = createIframe(SLAVE_URL, { ns: master.ns, id })
+    const iframe = createIframe(CLIENT_URL, { ns: server.ns, id })
     iframes.push(iframe)
   }
   await dfd.promise
-  return [slaves, iframes]
+  return [clients, iframes]
 }
 
-export const setUpMasterWithSlaves = async (numSlaves, ns = newNamespace()) => {
-  const master = new Master({ ns })
-  const settingUpSlaves = setUpSlaves(master, numSlaves)
-  master.init()
-  const [slaves, iframes] = await settingUpSlaves
+export const setUpServerWithClients = async (
+  numClients,
+  ns = newNamespace()
+) => {
+  const server = new Server({ ns })
+  const settingUpClients = setUpClients(server, numClients)
+  server.init()
+  const [clients, iframes] = await settingUpClients
   return {
-    master,
-    slave: slaves[0],
-    slaves,
+    server,
+    client: clients[0],
+    clients,
     dispose: () => {
-      master.dispose()
+      server.dispose()
       iframes.filter(iframe => iframe.parentNode).forEach(iframe => {
         iframe.parentNode.removeChild(iframe)
       })
@@ -66,5 +69,5 @@ export const setUpMasterWithSlaves = async (numSlaves, ns = newNamespace()) => {
   }
 }
 
-export const setUpMasterWithSlave = (ns = newNamespace()) =>
-  setUpMasterWithSlaves(1, ns)
+export const setUpServerWithClient = (ns = newNamespace()) =>
+  setUpServerWithClients(1, ns)

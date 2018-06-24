@@ -1,14 +1,14 @@
 import delay from 'delay'
 import numeral from 'numeral'
 import {
-  setUpMasterWithSlave,
-  setUpMasterWithSlaves,
+  setUpServerWithClient,
+  setUpServerWithClients,
   benchmark
 } from './helpers'
 
 const BENCHMARK_DURATION = 5000
 const SLEEP_TIME = 3000
-const SLAVE_COUNTS = [2, 4, 8, 16, 32, 64, 128, 256]
+const CLIENT_COUNTS = [2, 4, 8, 16, 32, 64, 128, 256]
 
 const format = n => numeral(n).format('0,0.00') + ' sends/sec'
 
@@ -28,12 +28,12 @@ describe('Benchmarks', function () {
     this.timeout(BENCHMARK_DURATION + 1000)
 
     it('send', async function () {
-      ctx = await setUpMasterWithSlave()
-      const { master, slave } = ctx
-      master.setHandler('noop', async () => null)
+      ctx = await setUpServerWithClient()
+      const { server, client } = ctx
+      server.setHandler('noop', async () => null)
       console.info(`Benchmarking send for ${BENCHMARK_DURATION} ms`)
       const perSec = await benchmark(async () => {
-        await slave.send('noop')
+        await client.send('noop')
       }, BENCHMARK_DURATION)
       console.info('Send throughput: ' + format(perSec))
     })
@@ -42,19 +42,19 @@ describe('Benchmarks', function () {
   describe('broadcast', function () {
     this.timeout(BENCHMARK_DURATION + 5000)
 
-    for (const count of SLAVE_COUNTS) {
-      it(`${count} slaves`, async function () {
-        ctx = await setUpMasterWithSlaves(count)
-        const { master } = ctx
+    for (const count of CLIENT_COUNTS) {
+      it(`${count} clients`, async function () {
+        ctx = await setUpServerWithClients(count)
+        const { server } = ctx
         console.info(
-          `Benchmarking broadcast with ${count} slaves for ${BENCHMARK_DURATION} ms`
+          `Benchmarking broadcast with ${count} clients for ${BENCHMARK_DURATION} ms`
         )
         const perSec = await benchmark(async () => {
-          await master.broadcast('noop')
+          await server.broadcast('noop')
         }, BENCHMARK_DURATION)
         const throughput = perSec * count
         console.info(
-          `Broadcast throughput with ${count} slaves: ` + format(throughput)
+          `Broadcast throughput with ${count} clients: ` + format(throughput)
         )
       })
     }

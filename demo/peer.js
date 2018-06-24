@@ -3,7 +3,7 @@
   const { delay } = window
 
   const NAMESPACE = 'demo'
-  const SLAVE_ID = window.location.hash.substr(1) || '1'
+  const CLIENT_ID = window.location.hash.substr(1) || '1'
 
   // Number of seconds to wait for the other iframe to load
   const DELAY = 2
@@ -14,9 +14,9 @@
 
   const { document: doc } = window.parent
   const windows = ['p1', 'p2'].map(id => doc.getElementById(id).contentWindow)
-  const [source, target] = SLAVE_ID === '2' ? windows.reverse() : windows
+  const [source, target] = CLIENT_ID === '2' ? windows.reverse() : windows
 
-  const peer = new Peer({ ns: NAMESPACE, id: SLAVE_ID, source, target })
+  const peer = new Peer({ ns: NAMESPACE, id: CLIENT_ID, source, target })
 
   window.setUpLog(peer)
 

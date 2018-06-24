@@ -1,3 +1,3 @@
-export { Master } from './master'
-export { Slave } from './slave'
+export { Server } from './server'
+export { Client } from './client'
 export { Peer } from './peer'

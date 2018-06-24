@@ -1,10 +1,10 @@
-import { setUpMasterWithSlave } from './helpers'
+import { setUpServerWithClient } from './helpers'
 
 describe('Protocol', function () {
   const ctxs = []
 
   const addContext = async () => {
-    const ctx = await setUpMasterWithSlave()
+    const ctx = await setUpServerWithClient()
     ctxs.push(ctx)
     return ctx
   }
@@ -18,39 +18,39 @@ describe('Protocol', function () {
     }
   })
 
-  it('supports multiple masters', async function () {
+  it('supports multiple servers', async function () {
     await addContext()
-    const [{ master: master1 }, { master: master2 }] = ctxs
-    const numSlaves1 = Object.keys(master1.slaves).length
-    const numSlaves2 = Object.keys(master2.slaves).length
-    expect([numSlaves1, numSlaves2]).to.deep.equal([1, 1])
+    const [{ server: server1 }, { server: server2 }] = ctxs
+    const numClients1 = Object.keys(server1.clients).length
+    const numClients2 = Object.keys(server2.clients).length
+    expect([numClients1, numClients2]).to.deep.equal([1, 1])
   })
 
   it('filters by namespace', async function () {
     await addContext()
     const [
-      { master: master1, slave: slave1 },
-      { master: master2, slave: slave2 }
+      { server: server1, client: client1 },
+      { server: server2, client: client2 }
     ] = ctxs
     let calls1 = 0
-    master1.setHandler('cmd', async () => {
+    server1.setHandler('cmd', async () => {
       ++calls1
     })
     let calls2 = 0
-    master2.setHandler('cmd', async () => {
+    server2.setHandler('cmd', async () => {
       ++calls2
     })
-    await slave1.send('trigger', { type: 'cmd' })
+    await client1.send('trigger', { type: 'cmd' })
     expect([calls1, calls2]).to.deep.equal([1, 0])
-    await slave2.send('trigger', { type: 'cmd' })
+    await client2.send('trigger', { type: 'cmd' })
     expect([calls1, calls2]).to.deep.equal([1, 1])
   })
 
   it('handles nonexistent commands', async function () {
-    const { slave } = ctxs[0]
+    const { client } = ctxs[0]
     let error = null
     try {
-      await slave.send('doesNotExist')
+      await client.send('doesNotExist')
     } catch (err) {
       error = err
     }

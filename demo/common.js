@@ -86,8 +86,8 @@
 
     logNodeEvents(node)
 
-    if (node.master != null) {
-      logNodeEvents(node.master)
+    if (node.server != null) {
+      logNodeEvents(node.server)
     }
 
     node.log('Starting')

@@ -8,13 +8,13 @@ Robust, developer-friendly [`postMessage`](https://developer.mozilla.org/en-US/d
 
 Burrata has two modes:
 
-1. **Master-slave mode** assumes that you've got one _master_ document
-   containing one or more _slave_ iframes that connect to it. This mode also
-   makes it easy to _broadcast_ a message to all slaves.
+1. **Client-server mode** assumes that you've got one _server_ document
+   containing one or more _client_ iframes that connect to it. This mode also
+   makes it easy to _broadcast_ a message to all clients.
 
 2. **Peer-to-peer mode** sets up communication between exactly two iframes.
 
-In both modes, bidirectional communication is fully supported. Masters, slaves,
+In both modes, bidirectional communication is fully supported. Servers, clients,
 and peers can all define and invoke commands. The distinction between both modes
 exists purely to accommodate common use cases.
 
@@ -48,51 +48,51 @@ In both modes, it is recommended that you enter a meaningful value for `ns`
 (namespace) and `id` (node identifier) where applicable. In the examples below,
 we'll use dummy values.
 
-### Master-Slave Mode
+### Client-Server Mode
 
-1. In the top-level HTML document, create an instance of `Master`. Then,
+1. In the top-level HTML document, create an instance of `Server`. Then,
    register some command handlers; in this case, we're creating a simple `echo`
-   command. Finally, call `init()` to start listening for commands from slaves.
+   command. Finally, call `init()` to start listening for commands from clients.
 
     ```js
     const ns = 'testing' // Pick a namespace.
-    const master = new burrata.Master({ ns })
+    const server = new burrata.Server({ ns })
 
     // Register the "echo" command, which sends back the value of the "msg" arg.
-    master.setHandler('echo', async ({ msg }) => {
+    server.setHandler('echo', async ({ msg }) => {
       return msg
     })
 
     // Start listening for commands.
-    master.init()
+    server.init()
     ```
 
-2. Add an `<iframe>` for each slave. Inside the iframe, set up the slave.
+2. Add an `<iframe>` for each client. Inside the iframe, set up the client.
 
     ```js
-    const ns = 'testing' // The same namespace as for the master.
-    const id = 'slave_1' // A unique ID for this slave.
-    const slave = new burrata.Slave({ ns, id })
+    const ns = 'testing' // The same namespace as for the server.
+    const id = 'client_1' // A unique ID for this client.
+    const client = new burrata.Client({ ns, id })
 
-    // Connect to master.
-    await slave.init()
+    // Connect to server.
+    await client.init()
     ```
 
-3. Now that everything is wired up, make the slave call its master's `echo`
+3. Now that everything is wired up, make the client call its server's `echo`
    command.
 
     ```js
-    const response = await slave.send('echo', { msg: 'Hello!' })
+    const response = await client.send('echo', { msg: 'Hello!' })
     console.log('Response: ' + response)
     ```
 
-Slaves can define command handlers using the same `setHandler()` function.
-Please consult the [demo](demo/master.html) for more examples.
+Clients can define command handlers using the same `setHandler()` function.
+Please consult the [demo](demo/server.html) for more examples.
 
 ### Peer-to-Peer Mode
 
 In peer-to-peer mode, you create two instances of `burrata.Peer` and await their
-`init()` call. Like in master-slave mode, you can use `setHandler()` to define
+`init()` call. Like in client-server mode, you can use `setHandler()` to define
 commands on peers, and `send()` to invoke them.
 
 In most cases, you will also want to pass two additional options to the `Peer`
