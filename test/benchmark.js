@@ -1,5 +1,6 @@
 import delay from 'delay'
 import numeral from 'numeral'
+import stats from 'stats-lite'
 import {
   setUpServerWithClient,
   setUpServerWithClients,
@@ -10,7 +11,31 @@ const BENCHMARK_DURATION = 5000
 const SLEEP_TIME = 3000
 const CLIENT_COUNTS = [2, 4, 8, 16, 32, 64, 128, 256]
 
-const format = n => numeral(n).format('0,0.00') + ' sends/sec'
+const formatNumber = n => numeral(n).format('0,0.00')
+
+const formatTime = n => formatNumber(n) + ' ms'
+
+const formatThroughput = n => formatNumber(n) + ' sends/sec'
+
+const percentile = p => n => stats.percentile(n, p / 100)
+
+const statTypes = {
+  mean: stats.mean,
+  stdev: stats.stdev,
+  min: a => Math.min(...a),
+  p50: percentile(50),
+  p90: percentile(90),
+  p95: percentile(95),
+  p99: percentile(99),
+  max: a => Math.max(...a)
+}
+
+const printLatencyStats = latencies => {
+  console.info('Latency statistics:')
+  for (const [n, fn] of Object.entries(statTypes)) {
+    console.info(`  ${n}: ${formatTime(fn(latencies))}`)
+  }
+}
 
 describe('Benchmarks', function () {
   let ctx
@@ -31,11 +56,12 @@ describe('Benchmarks', function () {
       ctx = await setUpServerWithClient()
       const { server, client } = ctx
       server.setHandler('noop', async () => null)
-      console.info(`Benchmarking send for ${BENCHMARK_DURATION} ms`)
-      const perSec = await benchmark(async () => {
+      console.info(`Benchmarking send for ${formatTime(BENCHMARK_DURATION)}`)
+      const [throughput, latencies] = await benchmark(async () => {
         await client.send('noop')
       }, BENCHMARK_DURATION)
-      console.info('Send throughput: ' + format(perSec))
+      console.info(`Send throughput: ${formatThroughput(throughput)}`)
+      printLatencyStats(latencies)
     })
   })
 
@@ -47,15 +73,20 @@ describe('Benchmarks', function () {
         ctx = await setUpServerWithClients(count)
         const { server } = ctx
         console.info(
-          `Benchmarking broadcast with ${count} clients for ${BENCHMARK_DURATION} ms`
+          `Benchmarking broadcast with ${count} clients for ${formatTime(
+            BENCHMARK_DURATION
+          )}`
         )
-        const perSec = await benchmark(async () => {
+        const [perSec, latencies] = await benchmark(async () => {
           await server.broadcast('noop')
         }, BENCHMARK_DURATION)
         const throughput = perSec * count
         console.info(
-          `Broadcast throughput with ${count} clients: ` + format(throughput)
+          `Broadcast throughput with ${count} clients: ${formatThroughput(
+            throughput
+          )}`
         )
+        printLatencyStats(latencies)
       })
     }
   })
